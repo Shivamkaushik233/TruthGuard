@@ -189,7 +189,7 @@
   </main>
 
   <script>
-    const API = 'http://localhost:8003';
+    const API = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? window.location.origin : 'http://localhost:8080';
     let file = null;
 
     const FEATURES = [

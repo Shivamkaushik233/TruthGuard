@@ -327,7 +327,7 @@
 
   <!-- ── Script ─────────────────────────────────────────────────────────────── -->
   <script>
-    const API = 'http://localhost:8001';
+    const API = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? window.location.origin : 'http://localhost:8080';
 
     // ── Health ─────────────────────────────────────────────────────────────────
     async function checkHealth() {

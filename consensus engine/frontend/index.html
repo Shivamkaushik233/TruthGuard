@@ -529,14 +529,17 @@
 // ─────────────────────────────────────────────────────────────────
 // Agent configuration
 // ─────────────────────────────────────────────────────────────────
+const isHosted = typeof window !== 'undefined' && window.location.protocol.startsWith('http');
+const defaultHost = isHosted ? window.location.origin : 'http://localhost';
+
 const AGENTS = {
-  claim:  { key:'claim',  name:'Claim Extraction',        port:8000, path:'/extract-claims',  icon:'01' },
-  cross:  { key:'cross',  name:'Cross-Modal Contradiction',port:8001, path:'/analyze',          icon:'02' },
-  video:  { key:'video',  name:'Deepfake Evidence (video)',port:8002, path:'/analyze-deepfake', icon:'03' },
-  image:  { key:'image',  name:'Image Deepfake Detector',  port:8003, path:'/analyze-image',    icon:'04' },
-  source: { key:'source', name:'Source Credibility',       port:8004, path:'/analyze-source',   icon:'05' },
-  scam:   { key:'scam',   name:'Scam Detection',           port:8005, path:'/analyze',          icon:'06' },
-  consensus: { key:'consensus', name:'Consensus Engine',   port:8006, path:'/consensus',        icon:'⚖' },
+  claim:     { key:'claim',     name:'Claim Extraction',         port:8000, path:'/extract-claims',   icon:'01' },
+  cross:     { key:'cross',     name:'Cross-Modal Contradiction',port:8001, path:'/analyze-cross',    icon:'02' },
+  video:     { key:'video',     name:'Deepfake Evidence (video)',port:8002, path:'/analyze-deepfake', icon:'03' },
+  image:     { key:'image',     name:'Image Deepfake Detector',  port:8003, path:'/analyze-image',    icon:'04' },
+  source:    { key:'source',    name:'Source Credibility',       port:8004, path:'/analyze-source',   icon:'05' },
+  scam:      { key:'scam',      name:'Scam Detection',           port:8005, path:'/analyze-scam',     icon:'06' },
+  consensus: { key:'consensus', name:'Consensus Engine',         port:8006, path:'/consensus',        icon:'⚖' },
 };
 
 // Maps our internal card keys to the field names the Consensus Engine expects.
@@ -545,9 +548,12 @@ const EVIDENCE_KEY = {
   image:'image_deepfake', source:'source_credibility', scam:'scam_detection',
 };
 
-const state = { host: 'http://localhost', results:{}, cardEls:{} };
+const state = { host: defaultHost, results:{}, cardEls:{} };
 
 function agentUrl(agent){
+  if (isHosted && (state.host === window.location.origin || state.host === '')) {
+    return `${window.location.origin}${agent.path}`;
+  }
   return `${state.host.replace(/\/$/,'')}:${agent.port}${agent.path}`;
 }
 

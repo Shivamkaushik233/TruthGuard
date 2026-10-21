@@ -1,0 +1,22 @@
+{
+  "name": "truthguard",
+  "version": "1.0.0",
+  "description": "Multi-Agent Multimodal AI Platform for Automated Digital Deception Detection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "multi-agent",
+    "ai",
+    "fact-checking",
+    "deepfake-detection",
+    "gemini",
+    "scam-detection"
+  ],
+  "author": "Shivam Kaushik",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

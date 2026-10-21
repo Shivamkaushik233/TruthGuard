@@ -182,7 +182,7 @@
 
   <!-- ── Script ──────────────────────────────────────────────────────────────── -->
   <script>
-    const API = 'http://localhost:8000';
+    const API = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? window.location.origin : 'http://localhost:8080';
     let currentData = null;
     let activeType = 'all';
 

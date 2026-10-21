@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: truthguard
+    env: node
+    plan: free
+    buildCommand: echo "Zero npm dependencies required"
+    startCommand: node server.js
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest
