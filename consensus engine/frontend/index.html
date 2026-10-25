@@ -870,7 +870,9 @@
       <!-- Presets bar -->
       <div class="form-label">Quick Scenario Presets</div>
       <div class="presets-bar">
+        <button class="preset-chip" id="presetDeathHoax">⚰️ Celebrity Death Hoax</button>
         <button class="preset-chip" id="presetFalseLeader">🏛️ Fabricated Leader Claim</button>
+        <button class="preset-chip" id="presetTrueNews">✅ Verified Real News</button>
         <button class="preset-chip" id="presetFake">🚨 AI Deepfake Image</button>
         <button class="preset-chip" id="presetScam">⚠️ Crypto Grant Scam</button>
         <button class="preset-chip" id="presetContradiction">📰 War News Contradiction</button>
@@ -1232,6 +1234,16 @@ document.getElementById('vidRemove').addEventListener('click', () => {
 });
 
 // ── Presets ─────────────────────────────────────────────────────────────────
+document.getElementById('presetDeathHoax').addEventListener('click', () => {
+  document.getElementById('inText').value = "Elon Musk is dead";
+  document.getElementById('inUrl').value = "https://viral-breaking-rumor.net";
+});
+
+document.getElementById('presetTrueNews').addEventListener('click', () => {
+  document.getElementById('inText').value = "Narendra Modi is the Prime Minister of India";
+  document.getElementById('inUrl').value = "https://reuters.com";
+});
+
 document.getElementById('presetFalseLeader').addEventListener('click', () => {
   document.getElementById('inText').value = "Shivam Kaushik is the Prime Minister of India";
   document.getElementById('inUrl').value = "https://unverified-social-wire.net";
