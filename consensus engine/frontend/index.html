@@ -830,32 +830,6 @@
   </div>
 </div>
 
-<!-- ── Gemini API Key Modal ── -->
-<div class="modal-overlay hidden" id="apiKeyModal">
-  <div class="login-card" style="max-width: 480px;">
-    <div class="card-header" style="margin-bottom: 16px; border: none; padding: 0;">
-      <h3 class="card-title">🔑 Configure Gemini AI Vision</h3>
-      <button class="file-remove" id="closeApiKeyModal" style="color: var(--text-dim); font-size: 20px;">✕</button>
-    </div>
-    <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6;">
-      TruthGuard integrates with <strong>Google Gemini 1.5 / 2.0 Flash</strong> for live multimodal deepfake and forensic reasoning. Enter your API key below (stored safely in local browser storage only):
-    </p>
-
-    <div class="form-group">
-      <label class="form-label">Google AI Studio Gemini API Key</label>
-      <input type="password" class="input-control" id="inputApiKey" placeholder="AIzaSy...">
-    </div>
-
-    <div style="font-size: 11.5px; color: var(--text-dim); margin-bottom: 20px;">
-      💡 Don't have a key? TruthGuard's built-in <strong>Deep Neural Heuristic Scanner</strong> automatically inspects binary headers and metadata without requiring an API key.
-    </div>
-
-    <button type="button" class="btn-launch" id="btnSaveApiKey">
-      Save Configuration
-    </button>
-  </div>
-</div>
-
 <!-- ── Top Navigation Bar ── -->
 <header class="navbar">
   <a href="/" class="nav-brand">
@@ -870,10 +844,6 @@
     <div class="agent-pulse">
       <span>7/7 NEURAL AGENTS ONLINE</span>
     </div>
-
-    <button class="btn-outline" id="btnOpenApiKey">
-      🔑 <span id="apiKeyStatusLabel">Gemini AI Key</span>
-    </button>
 
     <div class="user-profile-badge" id="userBadge">
       <div class="user-avatar" id="avatarInitial">A</div>
@@ -900,6 +870,7 @@
       <!-- Presets bar -->
       <div class="form-label">Quick Scenario Presets</div>
       <div class="presets-bar">
+        <button class="preset-chip" id="presetFalseLeader">🏛️ Fabricated Leader Claim</button>
         <button class="preset-chip" id="presetFake">🚨 AI Deepfake Image</button>
         <button class="preset-chip" id="presetScam">⚠️ Crypto Grant Scam</button>
         <button class="preset-chip" id="presetContradiction">📰 War News Contradiction</button>
@@ -1122,6 +1093,27 @@
           </div>
         </div>
 
+        <!-- Agent 7: Factual Veracity Engine -->
+        <div class="agent-card" id="card-veracity">
+          <div>
+            <div class="agent-header">
+              <div>
+                <span class="agent-id">AGENT 07</span>
+                <h3 class="agent-name">Factual Veracity Engine</h3>
+              </div>
+              <span class="agent-status-pill idle" id="status-veracity">IDLE</span>
+            </div>
+            <div class="meter-bar">
+              <div class="meter-label-row">
+                <span>Factual Veracity Score</span>
+                <span id="val-veracity">0%</span>
+              </div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-veracity" style="width: 0%;"></div></div>
+            </div>
+            <div class="finding-box" id="finding-veracity">Cross-examines real-world institutional facts, government leadership, and known hoaxes.</div>
+          </div>
+        </div>
+
       </div>
     </section>
   </div>
@@ -1167,36 +1159,6 @@ document.getElementById('authForm').addEventListener('submit', (e) => {
 document.getElementById('btnLogout').addEventListener('click', () => {
   localStorage.removeItem(AUTH_KEY);
   location.reload();
-});
-
-// ── Gemini API Key Modal Management ─────────────────────────────────────────
-function updateApiKeyStatus() {
-  const key = localStorage.getItem(API_KEY_STORAGE) || '';
-  const label = document.getElementById('apiKeyStatusLabel');
-  if (key) {
-    label.textContent = `AI Key: ••••${key.slice(-4)}`;
-    label.style.color = 'var(--emerald)';
-  } else {
-    label.textContent = 'Gemini AI Key';
-    label.style.color = 'var(--text-main)';
-  }
-}
-
-document.getElementById('btnOpenApiKey').addEventListener('click', () => {
-  document.getElementById('inputApiKey').value = localStorage.getItem(API_KEY_STORAGE) || '';
-  document.getElementById('apiKeyModal').classList.remove('hidden');
-});
-
-document.getElementById('closeApiKeyModal').addEventListener('click', () => {
-  document.getElementById('apiKeyModal').classList.add('hidden');
-});
-
-document.getElementById('btnSaveApiKey').addEventListener('click', () => {
-  const val = document.getElementById('inputApiKey').value.trim();
-  if (val) localStorage.setItem(API_KEY_STORAGE, val);
-  else localStorage.removeItem(API_KEY_STORAGE);
-  updateApiKeyStatus();
-  document.getElementById('apiKeyModal').classList.add('hidden');
 });
 
 // ── File Pickers & Preview ──────────────────────────────────────────────────
@@ -1270,6 +1232,11 @@ document.getElementById('vidRemove').addEventListener('click', () => {
 });
 
 // ── Presets ─────────────────────────────────────────────────────────────────
+document.getElementById('presetFalseLeader').addEventListener('click', () => {
+  document.getElementById('inText').value = "Shivam Kaushik is the Prime Minister of India";
+  document.getElementById('inUrl').value = "https://unverified-social-wire.net";
+});
+
 document.getElementById('presetFake').addEventListener('click', () => {
   document.getElementById('inText').value = "Leaked high-resolution portrait showing newly developed cybernetic human cloning project presented at undisclosed summit.";
   document.getElementById('inUrl').value = "ai-synth-lab.internal.net";
@@ -1300,6 +1267,24 @@ document.getElementById('presetReset').addEventListener('click', () => {
   setGauge(50, 'UNCERTAIN', 'Consensus Engine Ready', 'Submit evidence to initiate multi-agent investigation.');
   document.getElementById('factorsList').innerHTML = '';
   document.getElementById('conflictBox').style.display = 'none';
+
+  ['claim', 'cross', 'video', 'image', 'source', 'scam', 'veracity'].forEach(id => {
+    setCardStatus(id, 'idle', 'IDLE');
+    const val = document.getElementById(`val-${id}`);
+    if (val) val.textContent = '0%';
+    const bar = document.getElementById(`bar-${id}`);
+    if (bar) {
+      bar.style.width = '0%';
+      bar.className = 'meter-fill good';
+    }
+  });
+  document.getElementById('finding-claim').textContent = 'Awaiting textual assertions to decompose into atomic verifiable claims.';
+  document.getElementById('finding-cross').textContent = 'Compares visual semantic features against claimed text.';
+  document.getElementById('finding-video').textContent = 'Temporal consistency, ViT face artifacts, and phoneme-viseme lip-sync analysis.';
+  document.getElementById('finding-image').textContent = 'Inspects diffusion frequency anomalies, facial geometry, and corneal specular reflections.';
+  document.getElementById('finding-source').textContent = 'Evaluates publisher provenance, domain lifespan, and historical accuracy records.';
+  document.getElementById('finding-scam').textContent = 'Measures urgency triggers, cognitive manipulation, and financial advance fee patterns.';
+  document.getElementById('finding-veracity').textContent = 'Cross-examines real-world institutional facts, government leadership, and known hoaxes.';
 });
 
 // ── Network Calls ───────────────────────────────────────────────────────────
@@ -1463,7 +1448,33 @@ document.getElementById('btnRun').addEventListener('click', async () => {
       }
     }
 
-    // 7. Bayesian Evidence Fusion (Consensus Engine)
+    // 7. Factual Veracity Engine (Cross-Examines Real-World Facts)
+    if (text) {
+      setCardStatus('veracity', 'running', 'VERIFYING');
+      try {
+        const r = await apiCall('/verify-veracity', { text });
+        evidence.factual_veracity = r;
+        const pct = Math.round((r.veracity_score || 0) * 100);
+        document.getElementById('val-veracity').textContent = `${pct}%`;
+        const bar = document.getElementById('bar-veracity');
+        bar.style.width = `${pct}%`;
+        if (pct < 35) {
+          bar.className = 'meter-fill bad';
+          setCardStatus('veracity', 'threat', r.verdict);
+        } else if (pct < 65) {
+          bar.className = 'meter-fill warn';
+          setCardStatus('veracity', 'running', r.verdict);
+        } else {
+          bar.className = 'meter-fill good';
+          setCardStatus('veracity', 'done', r.verdict);
+        }
+        document.getElementById('finding-veracity').textContent = r.explanation || r.correct_fact || 'Factual consistency corroborated.';
+      } catch (e) {
+        setCardStatus('veracity', 'threat', 'ERROR');
+      }
+    }
+
+    // 8. Bayesian Evidence Fusion (Consensus Engine)
     const consensusRes = await apiCall('/consensus', { evidence });
     setGauge(
       consensusRes.trust_score,
@@ -1500,7 +1511,6 @@ document.getElementById('btnRun').addEventListener('click', async () => {
 
 // Initialize on load
 initAuth();
-updateApiKeyStatus();
 </script>
 </body>
 </html>
