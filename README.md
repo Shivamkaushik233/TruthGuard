@@ -1782,7 +1782,7 @@ The result is a modular foundation for developing intelligent systems for:
 
 # 👤 Author
 
-## Shreya Khadekar
+## Shivam Kaushik
 
 **B.Tech — Computer Science & Engineering**  
 **Vellore Institute of Technology (VIT)**
@@ -1805,5 +1805,3 @@ Built as an exploration of modern:
 
 Explore the individual agent directories to understand how the complete TruthGuard intelligence pipeline is decomposed into specialized AI components.
 
-**Repository:**  
-https://github.com/Shreya0029-cloud/TruthGuard
