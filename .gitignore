@@ -1,9 +1,8 @@
-@"
 # Environment variables
 .env
 .env.*
 !.env.example
-"@ | Out-File -Encoding utf8 .gitignore
+
 # Python
 __pycache__/
 *.py[cod]

@@ -1172,7 +1172,7 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/health') {
+  if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/health' || pathname === '/api/health')) {
     if (req.method === 'HEAD') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end();
@@ -1185,18 +1185,43 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
-  // Debug Investigation Endpoints
-  if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/api/debug/investigations') {
+  // Debug & Investigation Endpoints
+  if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/api/debug/investigations' || pathname === '/api/investigations')) {
     return sendJSON(res, 200, {
       total: orchestrator.investigations.size,
       investigations: orchestrator.listInvestigations(50)
     });
   }
 
-  if ((req.method === 'GET' || req.method === 'HEAD') && pathname && pathname.startsWith('/api/debug/investigation/')) {
-    const invId = pathname.replace('/api/debug/investigation/', '').trim();
+  if ((req.method === 'GET' || req.method === 'HEAD') && pathname && (pathname.startsWith('/api/debug/investigation/') || pathname.startsWith('/api/investigation/'))) {
+    const rawPath = pathname.replace(/^\/api\/(debug\/)?investigation\//, '');
+    const parts = rawPath.split('/');
+    const invId = (parts[0] || '').trim();
+    const subRoute = (parts[1] || '').trim().toLowerCase();
+
     const invRecord = orchestrator.getInvestigation(invId);
     if (!invRecord) return sendJSON(res, 404, { error: 'Investigation not found', investigation_id: invId });
+
+    if (subRoute === 'agents') {
+      return sendJSON(res, 200, {
+        investigation_id: invId,
+        agent_results: invRecord.agent_results,
+        applicable_agents: invRecord.applicable_agents,
+        inactive_agents: invRecord.inactive_agents
+      });
+    }
+
+    if (subRoute === 'evidence') {
+      return sendJSON(res, 200, {
+        investigation_id: invId,
+        final_verdict: invRecord.final_verdict,
+        trust_index: invRecord.trust_index,
+        supporting_evidence: invRecord.supporting_evidence || [],
+        contradicting_evidence: invRecord.contradicting_evidence || [],
+        citations: (invRecord.agent_results && invRecord.agent_results.agent7_factual_veracity && invRecord.agent_results.agent7_factual_veracity.citations) || []
+      });
+    }
+
     return sendJSON(res, 200, invRecord);
   }
 
@@ -1212,12 +1237,12 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { text, char_count: text.length });
       }
 
-      if (pathname === '/analyze') {
+      if (pathname === '/analyze' || pathname === '/api/investigate') {
         const result = await orchestrator.analyze({ ...body, api_key: userApiKey });
         return sendJSON(res, 200, result);
       }
 
-      if (pathname === '/extract-claims' || pathname === '/agent1-claim-extractor') {
+      if (pathname === '/extract-claims' || pathname === '/agent1-claim-extractor' || pathname === '/api/analyze/claim') {
         let text = (body.text || '').trim();
         if (!text && body.url) {
           const html = await httpsGet(body.url.trim());
@@ -1228,39 +1253,49 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, a1);
       }
 
-      if (pathname === '/analyze-cross' || pathname === '/agent2-cross-modal') {
+      if (pathname === '/analyze-cross' || pathname === '/agent2-cross-modal' || pathname === '/api/analyze/cross') {
         const a2 = await orchestrator.agent2.analyze(body);
         return sendJSON(res, 200, a2);
       }
 
-      if (pathname === '/analyze-deepfake' || pathname === '/agent3-video-forensics' || pathname === '/agent3-video-deepfake') {
+      if (pathname === '/analyze-deepfake' || pathname === '/agent3-video-forensics' || pathname === '/agent3-video-deepfake' || pathname === '/api/analyze/video') {
         const a3 = await orchestrator.agent3.analyze(body);
         return sendJSON(res, 200, a3);
       }
 
-      if (pathname === '/analyze-image' || pathname === '/agent4-image-synthesis' || pathname === '/agent4-image-deepfake') {
+      if (pathname === '/analyze-image' || pathname === '/agent4-image-synthesis' || pathname === '/agent4-image-deepfake' || pathname === '/api/analyze/image') {
         const a4 = await orchestrator.agent4.analyze(body);
         return sendJSON(res, 200, a4);
       }
 
-      if (pathname === '/analyze-source' || pathname === '/agent5-source-credibility') {
+      if (pathname === '/analyze-document' || pathname === '/agent6-document-ocr' || pathname === '/api/analyze/document') {
+        const aDoc = await orchestrator.agentDoc.analyze(body);
+        return sendJSON(res, 200, aDoc);
+      }
+
+      if (pathname === '/analyze-audio' || pathname === '/agent5-audio-forensics' || pathname === '/api/analyze/audio') {
+        const aAudio = await orchestrator.agentAudio.analyze(body);
+        return sendJSON(res, 200, aAudio);
+      }
+
+      if (pathname === '/analyze-source' || pathname === '/agent5-source-credibility' || pathname === '/api/analyze/source') {
         const a5 = await orchestrator.agent5.analyze({ url: body.url, source_name: body.source_name, text: body.text });
         return sendJSON(res, 200, a5);
       }
 
-      if (pathname === '/analyze-scam' || pathname === '/agent6-scam-persuasion') {
+      if (pathname === '/analyze-scam' || pathname === '/agent6-scam-persuasion' || pathname === '/api/analyze/scam') {
         const a6 = await orchestrator.agent6.analyze({ text: body.text });
         return sendJSON(res, 200, a6);
       }
 
-      if (pathname === '/verify-veracity' || pathname === '/fact-check' || pathname === '/agent7-factual-veracity') {
+      if (pathname === '/verify-veracity' || pathname === '/fact-check' || pathname === '/agent7-factual-veracity' || pathname === '/api/analyze/veracity') {
         let text = (body.text || '').trim();
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' to fact-check." });
         const a7 = await orchestrator.agent7.analyze({ text, apiKey: userApiKey });
         return sendJSON(res, 200, a7);
       }
 
-      if (pathname === '/consensus' || pathname === '/agent7-fusion') {
+      if (pathname === '/consensus' || pathname === '/agent7-fusion' || pathname === '/api/consensus') {
         const evidenceIn = body.evidence || body.agent_results || body;
         const result = await orchestrator.fusion.fuse(evidenceIn);
         return sendJSON(res, 200, result);

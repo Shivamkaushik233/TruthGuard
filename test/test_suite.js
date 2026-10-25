@@ -942,19 +942,21 @@ async function runTestSuite() {
   console.log('');
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CATEGORY 11: DEBUG TELEMETRY ENDPOINTS (2 Tests)
+  // CATEGORY 11: DEBUG TELEMETRY ENDPOINTS (4 Tests)
   // ─────────────────────────────────────────────────────────────────────────────
-  console.log('▶️ CATEGORY 11: Debug Telemetry Endpoints (2 Tests)');
+  console.log('▶️ CATEGORY 11: Debug Telemetry Endpoints (4 Tests)');
+
+  let testInvId = null;
 
   // D1: Investigation Recorded and Retrievable by ID
   {
     const res = await orchestrator.analyze({ text: 'Water freezes at 0 degrees Celsius at standard atmospheric pressure.' });
-    const invId = res.investigation_id;
-    const retrieved = orchestrator.getInvestigation(invId);
+    testInvId = res.investigation_id;
+    const retrieved = orchestrator.getInvestigation(testInvId);
     assert(
-      Boolean(retrieved) && retrieved.investigation_id === invId && retrieved.trust_index === res.trust_index,
+      Boolean(retrieved) && retrieved.investigation_id === testInvId && retrieved.trust_index === res.trust_index,
       'D1: Investigation telemetry is preserved in memory and retrievable via investigation_id',
-      { id: invId, retrieved_trust: retrieved?.trust_index }
+      { id: testInvId, retrieved_trust: retrieved?.trust_index }
     );
   }
 
@@ -965,6 +967,120 @@ async function runTestSuite() {
       Array.isArray(list) && list.length > 0 && Boolean(list[0].investigation_id),
       'D2: listInvestigations() returns structured telemetry records for debug endpoints',
       { count: list.length, latest_id: list[0]?.investigation_id }
+    );
+  }
+
+  // D3: Investigation Agents Breakdown by ID
+  {
+    const retrieved = orchestrator.getInvestigation(testInvId);
+    const has7Agents = retrieved &&
+      retrieved.agent_results &&
+      retrieved.agent_results.agent1_claim_extractor &&
+      retrieved.agent_results.agent2_cross_modal &&
+      retrieved.agent_results.agent3_video_deepfake &&
+      retrieved.agent_results.agent4_image_deepfake &&
+      retrieved.agent_results.agent5_source_credibility &&
+      retrieved.agent_results.agent6_scam_persuasion &&
+      retrieved.agent_results.agent7_factual_veracity;
+    assert(
+      Boolean(has7Agents),
+      'D3: getInvestigation() returns complete 7-agent forensic breakdown structure',
+      { has7Agents: Boolean(has7Agents) }
+    );
+  }
+
+  // D4: Investigation Citations and Evidence Payload
+  {
+    const retrieved = orchestrator.getInvestigation(testInvId);
+    const citations = retrieved?.agent_results?.agent7_factual_veracity?.citations;
+    assert(
+      Array.isArray(citations) && citations.length > 0 && Boolean(citations[0].source),
+      'D4: getInvestigation() provides verified source citations and domain tier attribution',
+      { citation_count: citations?.length, top_source: citations?.[0]?.source }
+    );
+  }
+
+  console.log('');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CATEGORY 12: EDGE CASES & SYSTEM ROBUSTNESS (6 Tests)
+  // ─────────────────────────────────────────────────────────────────────────────
+  console.log('▶️ CATEGORY 12: Edge Cases & System Robustness (6 Tests)');
+
+  // E1: Unicode & Emoji Fact Verification
+  {
+    const res = await orchestrator.analyze({ text: '🚀 NASA successfully landed humans on the Moon in 1969 🌕' });
+    assert(
+      res.final_verdict === 'VERIFIED TRUE' && res.trust_index >= 90,
+      'E1: Unicode and emoji factual claim resolves to VERIFIED TRUE with high trust (>= 90)',
+      { verdict: res.final_verdict, trust: res.trust_index }
+    );
+  }
+
+  // E2: Large Multi-Paragraph News Narrative
+  {
+    const longText = `
+      On July 20, 1969, American astronauts Neil Armstrong and Buzz Aldrin landed the Apollo 11 Lunar Module Eagle on the Moon.
+      Armstrong became the first person to step onto the lunar surface six hours and 39 minutes later, on July 21.
+      Aldrin joined him 19 minutes later, and they spent about two and a quarter hours together exploring the site.
+      They collected 47.5 pounds (21.5 kg) of lunar material to bring back to Earth.
+    `.trim();
+    const res = await orchestrator.analyze({ text: longText, url: 'https://nasa.gov/apollo11' });
+    assert(
+      res.final_verdict === 'VERIFIED TRUE' && res.trust_index >= 90 && res.applicable_agents.length >= 3,
+      'E2: Multi-paragraph historical narrative processes cleanly with high trust and multiple active agents',
+      { verdict: res.final_verdict, trust: res.trust_index, active: res.applicable_agents.length }
+    );
+  }
+
+  // E3: Transparent 1x1 PNG Raster Handling
+  {
+    const transparentPng = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+    const res = await orchestrator.agent4.analyze({
+      image_base64: transparentPng,
+      filename: 'transparent_pixel.png'
+    });
+    assert(
+      res.status === 'COMPLETED' && Boolean(res.verdict),
+      'E3: Minimal 1x1 image raster completes analysis without unhandled exceptions',
+      { status: res.status, verdict: res.verdict }
+    );
+  }
+
+  // E4: Claim Extractor Decomposes Multiple Verifiable Propositions
+  {
+    const res = await orchestrator.agent1.analyze({
+      text: 'Albert Einstein published the general theory of relativity in 1915 in Berlin, Germany.'
+    });
+    assert(
+      res.status === 'COMPLETED' && res.claims.length >= 1 && res.entities.length >= 1,
+      'E4: Claim extractor identifies atomic claims and named entities from biographical statements',
+      { claims_count: res.claims.length, entities: res.entities }
+    );
+  }
+
+  // E5: Document OCR Forensics Analyzes Text Structure
+  {
+    const res = await orchestrator.agentDoc.analyze({
+      ocr_text: 'OFFICIAL INVOICE #88412 - Total Amount Due: $1,450.00 USD. Date: 12-OCT-2024.',
+      filename: 'invoice.pdf'
+    });
+    assert(
+      res.status === 'COMPLETED' && res.verdict === 'AUTHENTIC DOCUMENT',
+      'E5: Document OCR engine accurately processes structured tabular invoice text',
+      { status: res.status, verdict: res.verdict }
+    );
+  }
+
+  // E6: Inactive Modality Exclusion Calibration
+  {
+    const res = await orchestrator.analyze({ text: 'Water freezes at 0 degrees Celsius at standard atmospheric pressure.' });
+    // Inactive modalities (Agent 2, 3, 4, 5) must not penalize the trust index
+    const inactiveCount = res.inactive_agents.length;
+    assert(
+      inactiveCount >= 3 && res.trust_index >= 90 && res.final_verdict === 'VERIFIED TRUE',
+      'E6: Multiple inactive modalities (video, image, source) do not artificially deflate trust index',
+      { inactive: inactiveCount, trust: res.trust_index, verdict: res.final_verdict }
     );
   }
 

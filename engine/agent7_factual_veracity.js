@@ -168,6 +168,7 @@ class FactualVeracityAgent {
         veracity_score: veracityScore,
         evidence: kbResult.evidence || [],
         structured_evidence: structuredEvidence,
+        citations: structuredEvidence,
         correct_fact: kbResult.correctFact || null,
         entities: kbResult.entities || [],
         explanation: isTrue
@@ -234,6 +235,18 @@ class FactualVeracityAgent {
                 excerpt: `${oc.officialIncumbent} is the officially designated incumbent ${oc.officialTitle}.`
               }
             ],
+            citations: [
+              {
+                source: 'Official Government Cabinet Secretariat',
+                title: 'Official Council of Ministers and Officeholder Gazette',
+                url: 'https://cabsec.gov.in/',
+                source_tier: 'Tier 1 - Sovereign & Scientific Authority',
+                relationship: 'SUPPORTS',
+                relevance: 1.0,
+                credibility: 0.99,
+                excerpt: `${oc.officialIncumbent} is the officially designated incumbent ${oc.officialTitle}.`
+              }
+            ],
             explanation: `Verified Truth: ${oc.officialIncumbent} is the official ${oc.officialTitle}.`,
             limitations: ['Official government gazette verified.'],
             processing_time_ms: Date.now() - startTime
@@ -251,6 +264,18 @@ class FactualVeracityAgent {
               'Claim that an unverified individual holds this sovereign office is completely false and fabricated.'
             ],
             structured_evidence: [
+              {
+                source: 'Official Government Cabinet Secretariat',
+                title: 'Official Council of Ministers and Officeholder Gazette',
+                url: 'https://cabsec.gov.in/',
+                source_tier: 'Tier 1 - Sovereign & Scientific Authority',
+                relationship: 'REFUTES',
+                relevance: 1.0,
+                credibility: 0.99,
+                excerpt: `The sovereign constitutional office of ${oc.officialTitle} is held by ${oc.officialIncumbent}. Unsubstantiated claims attributing this office to other individuals are false.`
+              }
+            ],
+            citations: [
               {
                 source: 'Official Government Cabinet Secretariat',
                 title: 'Official Council of Ministers and Officeholder Gazette',
