@@ -1180,9 +1180,24 @@ const server = http.createServer(async (req, res) => {
     return sendJSON(res, 200, {
       status: 'ok',
       service: 'TruthGuard Multi-Agent Digital Deception Detection Platform',
-      version: '2.1.0',
+      version: '2.2.0',
       model: MODEL
     });
+  }
+
+  // Debug Investigation Endpoints
+  if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/api/debug/investigations') {
+    return sendJSON(res, 200, {
+      total: orchestrator.investigations.size,
+      investigations: orchestrator.listInvestigations(50)
+    });
+  }
+
+  if ((req.method === 'GET' || req.method === 'HEAD') && pathname && pathname.startsWith('/api/debug/investigation/')) {
+    const invId = pathname.replace('/api/debug/investigation/', '').trim();
+    const invRecord = orchestrator.getInvestigation(invId);
+    if (!invRecord) return sendJSON(res, 404, { error: 'Investigation not found', investigation_id: invId });
+    return sendJSON(res, 200, invRecord);
   }
 
   if (req.method === 'POST') {
@@ -1202,116 +1217,53 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, result);
       }
 
-      if (pathname === '/agent1-claim-factcheck') {
-        const result = await orchestrator.agent1.analyze({ ...body, apiKey: userApiKey });
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent2-cross-modal') {
-        const result = await orchestrator.agent2.analyze(body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent3-video-forensics') {
-        const result = await orchestrator.agent3.analyze(body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent4-image-synthesis') {
-        const result = await orchestrator.agent4.analyze(body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent5-audio-forensics') {
-        const result = await orchestrator.agent5.analyze(body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent6-document-ocr') {
-        const result = await orchestrator.agent6.analyze(body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/agent7-fusion') {
-        const result = await orchestrator.agent7.fuse(body.evidence || body.agent_results || body);
-        return sendJSON(res, 200, result);
-      }
-
-      if (pathname === '/extract-claims') {
+      if (pathname === '/extract-claims' || pathname === '/agent1-claim-extractor') {
         let text = (body.text || '').trim();
         if (!text && body.url) {
           const html = await httpsGet(body.url.trim());
           text = stripHtml(html);
         }
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' or 'url'." });
-        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
-        return sendJSON(res, 200, { claims: a1.claims, source_text: text, char_count: text.length, model_used: MODEL });
+        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey, url: body.url });
+        return sendJSON(res, 200, a1);
       }
 
-      if (pathname === '/verify-veracity' || pathname === '/fact-check') {
+      if (pathname === '/analyze-cross' || pathname === '/agent2-cross-modal') {
+        const a2 = await orchestrator.agent2.analyze(body);
+        return sendJSON(res, 200, a2);
+      }
+
+      if (pathname === '/analyze-deepfake' || pathname === '/agent3-video-forensics' || pathname === '/agent3-video-deepfake') {
+        const a3 = await orchestrator.agent3.analyze(body);
+        return sendJSON(res, 200, a3);
+      }
+
+      if (pathname === '/analyze-image' || pathname === '/agent4-image-synthesis' || pathname === '/agent4-image-deepfake') {
+        const a4 = await orchestrator.agent4.analyze(body);
+        return sendJSON(res, 200, a4);
+      }
+
+      if (pathname === '/analyze-source' || pathname === '/agent5-source-credibility') {
+        const a5 = await orchestrator.agent5.analyze({ url: body.url, source_name: body.source_name, text: body.text });
+        return sendJSON(res, 200, a5);
+      }
+
+      if (pathname === '/analyze-scam' || pathname === '/agent6-scam-persuasion') {
+        const a6 = await orchestrator.agent6.analyze({ text: body.text });
+        return sendJSON(res, 200, a6);
+      }
+
+      if (pathname === '/verify-veracity' || pathname === '/fact-check' || pathname === '/agent7-factual-veracity') {
         let text = (body.text || '').trim();
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' to fact-check." });
-        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
-        return sendJSON(res, 200, {
-          veracity_score: a1.verdict === 'TRUE / VERIFIED' ? 0.98 : (a1.verdict === 'FALSE' ? 0.05 : 0.45),
-          verdict: a1.verdict,
-          explanation: a1.evidence.join('; '),
-          correct_fact: a1.evidence[0] || 'Fact verified against authoritative records.',
-          category: a1.claims?.[0]?.type || 'general',
-          ...a1
-        });
+        const a7 = await orchestrator.agent7.analyze({ text, apiKey: userApiKey });
+        return sendJSON(res, 200, a7);
       }
 
-      if (pathname === '/analyze-cross') {
-        const a2 = await orchestrator.agent2.analyze(body);
-        return sendJSON(res, 200, {
-          contradiction_score: a2.verdict === 'CONTRADICTION' ? 0.94 : 0.12,
-          alignment_score: a2.verdict === 'CONSISTENT' ? 0.90 : 0.20,
-          mismatch_reason: a2.evidence[0] || 'Cross-modal inspection completed.',
-          verdict: a2.verdict,
-          ...a2
-        });
-      }
-
-      if (pathname === '/analyze-deepfake') {
-        const a3 = await orchestrator.agent3.analyze(body);
-        return sendJSON(res, 200, {
-          deepfake_confidence_score: (a3.verdict.includes('DEEPFAKE') || a3.verdict.includes('FAKE')) ? 0.95 : 0.12,
-          verdict: a3.verdict,
-          evidence_summary: a3.evidence[0] || 'Temporal inspection completed.',
-          ...a3
-        });
-      }
-
-      if (pathname === '/analyze-image') {
-        const a4 = await orchestrator.agent4.analyze(body);
-        return sendJSON(res, 200, {
-          fake_confidence_score: (a4.verdict.includes('SYNTHETIC') || a4.verdict.includes('ALTERED') || a4.verdict.includes('FAKE')) ? 0.95 : 0.08,
-          verdict: a4.verdict,
-          summary: a4.evidence[0] || 'Visual synthesis inspection completed.',
-          ...a4
-        });
-      }
-
-      if (pathname === '/analyze-source') {
-        const resObj = await handleSourceCredibility(body.source_name, body.url);
-        return sendJSON(res, 200, resObj);
-      }
-
-      if (pathname === '/analyze-scam') {
-        const resObj = await handleScamDetection(body.text || '');
-        return sendJSON(res, 200, resObj);
-      }
-
-      if (pathname === '/consensus') {
+      if (pathname === '/consensus' || pathname === '/agent7-fusion') {
         const evidenceIn = body.evidence || body.agent_results || body;
-        const result = await orchestrator.agent7.fuse(evidenceIn);
-        return sendJSON(res, 200, {
-          ...result,
-          trust_score: result.trust_index,
-          verdict: result.final_verdict,
-          contributing_factors: result.factors
-        });
+        const result = await orchestrator.fusion.fuse(evidenceIn);
+        return sendJSON(res, 200, result);
       }
 
     } catch (err) {

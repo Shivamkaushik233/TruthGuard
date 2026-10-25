@@ -1013,13 +1013,13 @@
       <!-- 7 Specialist Agent Cards Grid -->
       <div class="agents-grid">
 
-        <!-- Agent 1: Claim Extraction & Fact-Check -->
+        <!-- Agent 1: Claim Extractor -->
         <div class="agent-card" id="card-agent1">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 01</span>
-                <h3 class="agent-name">Claim Extraction & Fact-Check</h3>
+                <h3 class="agent-name">Claim Extractor</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent1">IDLE</span>
             </div>
@@ -1031,10 +1031,10 @@
               </div>
               <div class="meter-track"><div class="meter-fill good" id="bar-agent1" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-agent1">Extracts atomic assertions and verifies against authoritative historical & scientific records.</div>
+            <div class="finding-box" id="finding-agent1">Decomposes input text into atomic, independently verifiable factual, temporal, and numerical claims.</div>
           </div>
           <div class="agent-footer">
-            <span id="lim-agent1">No constraints</span>
+            <span id="lim-agent1">Claim decomposition</span>
             <span id="time-agent1">0ms</span>
           </div>
         </div>
@@ -1065,13 +1065,13 @@
           </div>
         </div>
 
-        <!-- Agent 3: Video Forensics -->
+        <!-- Agent 3: Video Deepfake Forensics -->
         <div class="agent-card" id="card-agent3">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 03</span>
-                <h3 class="agent-name">Video Forensics</h3>
+                <h3 class="agent-name">Video Deepfake Forensics</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent3">IDLE</span>
             </div>
@@ -1091,13 +1091,13 @@
           </div>
         </div>
 
-        <!-- Agent 4: Image Deepfake / Synthesis -->
+        <!-- Agent 4: Image Deepfake Detector -->
         <div class="agent-card" id="card-agent4">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 04</span>
-                <h3 class="agent-name">Image Deepfake / Synthesis</h3>
+                <h3 class="agent-name">Image Deepfake Detector</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent4">IDLE</span>
             </div>
@@ -1109,7 +1109,7 @@
               </div>
               <div class="meter-track"><div class="meter-fill good" id="bar-agent4" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-agent4">Inspects diffusion grid artifacts, corneal reflections, and distinguishes compression from deepfakes.</div>
+            <div class="finding-box" id="finding-agent4">Inspects diffusion grid artifacts, split-comparison panels, and distinguishes compression from deepfakes.</div>
           </div>
           <div class="agent-footer">
             <span id="lim-agent4">Image raster required</span>
@@ -1117,39 +1117,39 @@
           </div>
         </div>
 
-        <!-- Agent 5: Audio / Voice Forensics -->
+        <!-- Agent 5: Source Credibility Graph -->
         <div class="agent-card" id="card-agent5">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 05</span>
-                <h3 class="agent-name">Audio / Voice Forensics</h3>
+                <h3 class="agent-name">Source Credibility Graph</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent5">IDLE</span>
             </div>
             <div class="agent-verdict-tag" id="verdict-agent5">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Confidence</span>
+                <span>Trust Score</span>
                 <span id="val-agent5">0%</span>
               </div>
               <div class="meter-track"><div class="meter-fill good" id="bar-agent5" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-agent5">Examines vocal tract formants, prosody flatness, respiratory pause continuity, and voice clones.</div>
+            <div class="finding-box" id="finding-agent5">Maps publisher domain reputation across Tiers 1-5 (Sovereign Authority to Blacklisted Disinformation).</div>
           </div>
           <div class="agent-footer">
-            <span id="lim-agent5">Audio waveform required</span>
+            <span id="lim-agent5">Source URL required</span>
             <span id="time-agent5">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 6: Document & OCR Forensics -->
+        <!-- Agent 6: Scam & Persuasion Engine -->
         <div class="agent-card" id="card-agent6">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 06</span>
-                <h3 class="agent-name">Document & OCR Forensics</h3>
+                <h3 class="agent-name">Scam & Persuasion Engine</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent6">IDLE</span>
             </div>
@@ -1161,36 +1161,36 @@
               </div>
               <div class="meter-track"><div class="meter-fill good" id="bar-agent6" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-agent6">Inspects vector font descriptors, baseline alignment, altered figures, and PDF object streams.</div>
+            <div class="finding-box" id="finding-agent6">Isolates social engineering, advance-fee fraud, and phishing from sensational clickbait persuasion.</div>
           </div>
           <div class="agent-footer">
-            <span id="lim-agent6">Document container required</span>
+            <span id="lim-agent6">Behavioral vector analysis</span>
             <span id="time-agent6">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 7: Bayesian Evidence Fusion -->
+        <!-- Agent 7: Factual Veracity Engine -->
         <div class="agent-card" id="card-agent7">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 07</span>
-                <h3 class="agent-name">Bayesian Evidence Fusion</h3>
+                <h3 class="agent-name">Factual Veracity Engine</h3>
               </div>
               <span class="agent-status-pill idle" id="status-agent7">IDLE</span>
             </div>
             <div class="agent-verdict-tag" id="verdict-agent7">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Trust Calibration</span>
+                <span>Veracity Score</span>
                 <span id="val-agent7">0%</span>
               </div>
               <div class="meter-track"><div class="meter-fill good" id="bar-agent7" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-agent7">Fuses active modalities via weighted Bayesian inference without penalizing unsubmitted modalities.</div>
+            <div class="finding-box" id="finding-agent7">Grounds claims against Tier 1 historical, geopolitical, living figure, and scientific consensus archives.</div>
           </div>
           <div class="agent-footer">
-            <span id="lim-agent7">Active modality aggregator</span>
+            <span id="lim-agent7">Semantic fact-checking</span>
             <span id="time-agent7">0ms</span>
           </div>
         </div>
@@ -1478,13 +1478,21 @@ document.getElementById('btnRun').addEventListener('click', async () => {
 
     const results = res.agent_results || {};
 
-    if (results.agent1_claim_factcheck) setAgentCard('agent1', results.agent1_claim_factcheck);
-    if (results.agent2_cross_modal) setAgentCard('agent2', results.agent2_cross_modal);
-    if (results.agent3_video_forensics) setAgentCard('agent3', results.agent3_video_forensics);
-    if (results.agent4_image_synthesis) setAgentCard('agent4', results.agent4_image_synthesis);
-    if (results.agent5_audio_forensics) setAgentCard('agent5', results.agent5_audio_forensics);
-    if (results.agent6_document_ocr) setAgentCard('agent6', results.agent6_document_ocr);
-    if (results.agent7_fusion) setAgentCard('agent7', results.agent7_fusion);
+    const a1 = results.agent1_claim_extractor || results.agent1;
+    const a2 = results.agent2_cross_modal || results.agent2;
+    const a3 = results.agent3_video_deepfake || results.agent3_video_forensics || results.agent3;
+    const a4 = results.agent4_image_deepfake || results.agent4_image_synthesis || results.agent4;
+    const a5 = results.agent5_source_credibility || results.agent5;
+    const a6 = results.agent6_scam_persuasion || results.agent6;
+    const a7 = results.agent7_factual_veracity || results.agent7_claim_factcheck || results.agent7;
+
+    if (a1) setAgentCard('agent1', a1);
+    if (a2) setAgentCard('agent2', a2);
+    if (a3) setAgentCard('agent3', a3);
+    if (a4) setAgentCard('agent4', a4);
+    if (a5) setAgentCard('agent5', a5);
+    if (a6) setAgentCard('agent6', a6);
+    if (a7) setAgentCard('agent7', a7);
 
     // Hero Consensus
     setGauge(
@@ -1498,13 +1506,14 @@ document.getElementById('btnRun').addEventListener('click', async () => {
 
     // Consensus breakdown
     if (res.agent_consensus) {
-      document.getElementById('cntSupporting').textContent = res.agent_consensus.supporting;
-      document.getElementById('cntContradicting').textContent = res.agent_consensus.contradicting;
-      document.getElementById('cntNeutral').textContent = res.agent_consensus.neutral;
-      document.getElementById('cntNA').textContent = res.agent_consensus.not_applicable;
+      const activeCount = res.agent_consensus.active !== undefined ? res.agent_consensus.active : (res.applicable_agents ? res.applicable_agents.length : 0);
+      const naCount = res.agent_consensus.inactive !== undefined ? res.agent_consensus.inactive : (res.inactive_agents ? res.inactive_agents.length : 0);
+      document.getElementById('cntSupporting').textContent = res.supporting_evidence ? res.supporting_evidence.length : 0;
+      document.getElementById('cntContradicting').textContent = res.contradicting_evidence ? res.contradicting_evidence.length : 0;
+      document.getElementById('cntNeutral').textContent = activeCount;
+      document.getElementById('cntNA').textContent = naCount;
 
-      const evaluated = res.agent_consensus.supporting + res.agent_consensus.contradicting + res.agent_consensus.neutral;
-      document.getElementById('topMeshStatus').innerHTML = `<span>${evaluated}/7 EVALUATED · ${res.agent_consensus.not_applicable}/7 N/A</span>`;
+      document.getElementById('topMeshStatus').innerHTML = `<span>${activeCount}/7 ACTIVE · ${naCount}/7 INACTIVE (N/A)</span>`;
     }
 
     // Contradictions

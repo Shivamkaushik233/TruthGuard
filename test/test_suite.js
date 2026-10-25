@@ -754,6 +754,220 @@ async function runTestSuite() {
     );
   }
 
+  console.log('');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CATEGORY 8: SOURCE CREDIBILITY GRAPH (6 Tests)
+  // ─────────────────────────────────────────────────────────────────────────────
+  console.log('▶️ CATEGORY 8: Source Credibility Graph (Agent 05 - 6 Tests)');
+
+  // S1: No URL Provided (Not Applicable, never penalizes score)
+  {
+    const res = await orchestrator.agent5.analyze({});
+    assert(
+      res.status === 'NOT_APPLICABLE' && res.applicable === false && res.trust_score === null,
+      'S1: No URL provided returns NOT_APPLICABLE with null trust_score without scoring 0',
+      { status: res.status, score: res.trust_score }
+    );
+  }
+
+  // S2: Tier 1 Sovereign Authority (.gov)
+  {
+    const res = await orchestrator.agent5.analyze({ url: 'https://history.nasa.gov/apollo11' });
+    assert(
+      res.tier === 1 && res.trust_score >= 90 && res.verdict === 'HIGH_TRUST_AUTHORITY',
+      'S2: NASA (.gov) classified as Tier 1 Sovereign & Scientific Authority (trust >= 90)',
+      { tier: res.tier, score: res.trust_score, verdict: res.verdict }
+    );
+  }
+
+  // S3: Tier 2 Accredited Press (Reuters)
+  {
+    const res = await orchestrator.agent5.analyze({ url: 'https://www.reuters.com/world/news' });
+    assert(
+      res.tier === 2 && res.trust_score >= 80 && res.verdict === 'CREDIBLE_JOURNALISTIC_OUTLET',
+      'S3: Reuters classified as Tier 2 Accredited International Journalism (trust >= 80)',
+      { tier: res.tier, score: res.trust_score }
+    );
+  }
+
+  // S4: Tier 3 Aggregator Platform (Medium)
+  {
+    const res = await orchestrator.agent5.analyze({ url: 'https://medium.com/@author/story' });
+    assert(
+      res.tier === 3 && res.trust_score >= 55 && res.trust_score <= 65,
+      'S4: Medium classified as Tier 3 Secondary Aggregator Platform (trust ~60)',
+      { tier: res.tier, score: res.trust_score }
+    );
+  }
+
+  // S5: Tier 4 Tabloid / Sensationalist (Daily Mail)
+  {
+    const res = await orchestrator.agent5.analyze({ url: 'https://www.dailymail.co.uk/news/article' });
+    assert(
+      res.tier === 4 && res.trust_score <= 45,
+      'S5: Daily Mail classified as Tier 4 Tabloid / Sensationalist (trust <= 45)',
+      { tier: res.tier, score: res.trust_score }
+    );
+  }
+
+  // S6: Tier 5 Scam / Disinformation Domain
+  {
+    const res = await orchestrator.agent5.analyze({ url: 'https://claim-grant-reward.site/verify' });
+    assert(
+      res.tier === 5 && res.trust_score <= 15 && res.verdict === 'LOW_TRUST_DISINFORMATION_OR_PHISHING',
+      'S6: Phishing/grant domain classified as Tier 5 Blacklisted Disinformation / Phishing',
+      { tier: res.tier, score: res.trust_score }
+    );
+  }
+
+  console.log('');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CATEGORY 9: SCAM & BEHAVIORAL PERSUASION ENGINE (4 Tests)
+  // ─────────────────────────────────────────────────────────────────────────────
+  console.log('▶️ CATEGORY 9: Scam & Behavioral Persuasion Engine (Agent 06 - 4 Tests)');
+
+  // P1: Advance Fee Fraud
+  {
+    const res = await orchestrator.agent6.analyze({ text: 'URGENT: Official COVID grant approved! Wire $200 processing deposit immediately to claim $50,000 cash prize.' });
+    assert(
+      res.scam_probability >= 0.85 && res.scam_risk === 'HIGH' || res.scam_risk === 'CRITICAL',
+      'P1: Advance fee fraud detected with high scam probability (>= 0.85)',
+      { scam_prob: res.scam_probability, risk: res.scam_risk }
+    );
+  }
+
+  // P2: Credential Harvesting Phishing
+  {
+    const res = await orchestrator.agent6.analyze({ text: 'Warning: Your bank account has been suspended. Click here to verify your identity and password immediately.' });
+    assert(
+      res.verdict === 'PHISHING_ATTEMPT' && res.scam_probability >= 0.85,
+      'P2: Coercive account suspension lure classified as PHISHING_ATTEMPT',
+      { verdict: res.verdict, scam_prob: res.scam_probability }
+    );
+  }
+
+  // P3: Sensational Clickbait
+  {
+    const res = await orchestrator.agent6.analyze({ text: 'You will not believe what happens if you drink water at 3am! Doctors are terrified!' });
+    assert(
+      res.verdict === 'CLICKBAIT_PERSUASION' && res.persuasion_probability >= 0.80,
+      'P3: Sensational clickbait curiosity gap classified as CLICKBAIT_PERSUASION',
+      { verdict: res.verdict, persuasion_prob: res.persuasion_probability }
+    );
+  }
+
+  // P4: Objective Fact Discourse
+  {
+    const res = await orchestrator.agent6.analyze({ text: 'Water freezes at 0 degrees Celsius under standard atmospheric pressure of 101.325 kPa.' });
+    assert(
+      res.verdict === 'LEGITIMATE_CONTENT' && res.scam_probability <= 0.05,
+      'P4: Objective scientific assertion verified as LEGITIMATE_CONTENT (scam <= 0.05)',
+      { verdict: res.verdict, scam_prob: res.scam_probability }
+    );
+  }
+
+  console.log('');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CATEGORY 10: MULTI-PANEL SPLIT IMAGE FIXTURE & REAL-WORLD REGRESSIONS (5 Tests)
+  // ─────────────────────────────────────────────────────────────────────────────
+  console.log('▶️ CATEGORY 10: Multi-Panel Split Image & Real-World Regressions (5 Tests)');
+
+  // R1: Split Test Image Fixture (Full image)
+  {
+    const res = await orchestrator.analyze({
+      filename: 'wide_split_comparison_infographic_style_image_wit.png',
+      image_base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    });
+    assert(
+      res.agent_results.agent4_image_deepfake.verdict === 'MULTI-PANEL / MIXED CONTENT' &&
+      res.agent_results.agent4_image_deepfake.is_multi_panel === true,
+      'R1: Full split comparison image fixture resolves to MULTI-PANEL / MIXED CONTENT',
+      { verdict: res.agent_results.agent4_image_deepfake.verdict, is_split: res.agent_results.agent4_image_deepfake.is_multi_panel }
+    );
+  }
+
+  // R2: Split Test Image Fixture (Left Crop = Real Taj Mahal)
+  {
+    const res = await orchestrator.analyze({
+      filename: 'wide_split_comparison_left_crop.png',
+      crop: 'left',
+      image_base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    });
+    assert(
+      res.agent_results.agent4_image_deepfake.verdict === 'REAL' &&
+      res.agent_results.agent4_image_deepfake.fake_probability <= 0.10,
+      'R2: Isolated left crop of Taj Mahal fixture evaluated as REAL (fake <= 0.10)',
+      { verdict: res.agent_results.agent4_image_deepfake.verdict }
+    );
+  }
+
+  // R3: Split Test Image Fixture (Right Crop = AI Taj Mahal)
+  {
+    const res = await orchestrator.analyze({
+      filename: 'wide_split_comparison_right_crop.png',
+      crop: 'right',
+      image_base64: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+    });
+    assert(
+      res.agent_results.agent4_image_deepfake.verdict === 'AI_GENERATED' &&
+      res.agent_results.agent4_image_deepfake.fake_probability >= 0.90,
+      'R3: Isolated right crop of Taj Mahal fixture evaluated as AI_GENERATED (fake >= 0.90)',
+      { verdict: res.agent_results.agent4_image_deepfake.verdict }
+    );
+  }
+
+  // R4: Government Office Fabrication Bug (from user screenshot: Shivam Kaushik = PM of India)
+  {
+    const res = await orchestrator.analyze({ text: 'Shivam Kaushik is the Prime Minister of India' });
+    assert(
+      res.final_verdict === 'DECEPTIVE / FALSE' && res.trust_index <= 10,
+      'R4: Fabricated leadership claim "Shivam Kaushik is the Prime Minister of India" resolves to DECEPTIVE / FALSE (trust <= 10)',
+      { verdict: res.final_verdict, trust: res.trust_index }
+    );
+  }
+
+  // R5: Celebrity Death Hoax Bug (Elon Musk is dead)
+  {
+    const res = await orchestrator.analyze({ text: 'Elon Musk died in a terrible crash earlier today' });
+    assert(
+      res.final_verdict === 'DECEPTIVE / FALSE' && res.trust_index <= 10,
+      'R5: Debunked celebrity death hoax "Elon Musk died" resolves to DECEPTIVE / FALSE (trust <= 10)',
+      { verdict: res.final_verdict, trust: res.trust_index }
+    );
+  }
+
+  console.log('');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CATEGORY 11: DEBUG TELEMETRY ENDPOINTS (2 Tests)
+  // ─────────────────────────────────────────────────────────────────────────────
+  console.log('▶️ CATEGORY 11: Debug Telemetry Endpoints (2 Tests)');
+
+  // D1: Investigation Recorded and Retrievable by ID
+  {
+    const res = await orchestrator.analyze({ text: 'Water freezes at 0 degrees Celsius at standard atmospheric pressure.' });
+    const invId = res.investigation_id;
+    const retrieved = orchestrator.getInvestigation(invId);
+    assert(
+      Boolean(retrieved) && retrieved.investigation_id === invId && retrieved.trust_index === res.trust_index,
+      'D1: Investigation telemetry is preserved in memory and retrievable via investigation_id',
+      { id: invId, retrieved_trust: retrieved?.trust_index }
+    );
+  }
+
+  // D2: List Investigations Ring Buffer
+  {
+    const list = orchestrator.listInvestigations(10);
+    assert(
+      Array.isArray(list) && list.length > 0 && Boolean(list[0].investigation_id),
+      'D2: listInvestigations() returns structured telemetry records for debug endpoints',
+      { count: list.length, latest_id: list[0]?.investigation_id }
+    );
+  }
+
   console.log('\n================================================================');
   console.log(`📊 TEST SUITE SUMMARY: ${results.passed} PASSED / ${results.failed} FAILED (Total ${results.passed + results.failed})`);
   console.log('================================================================\n');
