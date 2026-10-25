@@ -8,6 +8,7 @@ const https = require('https');
 const url   = require('url');
 const fs    = require('fs');
 const path  = require('path');
+const orchestrator = require('./engine/orchestrator');
 
 // ── Load .env ────────────────────────────────────────────────────────────────
 const envFiles = [
@@ -1196,6 +1197,46 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { text, char_count: text.length });
       }
 
+      if (pathname === '/analyze') {
+        const result = await orchestrator.analyze({ ...body, api_key: userApiKey });
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent1-claim-factcheck') {
+        const result = await orchestrator.agent1.analyze({ ...body, apiKey: userApiKey });
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent2-cross-modal') {
+        const result = await orchestrator.agent2.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent3-video-forensics') {
+        const result = await orchestrator.agent3.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent4-image-synthesis') {
+        const result = await orchestrator.agent4.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent5-audio-forensics') {
+        const result = await orchestrator.agent5.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent6-document-ocr') {
+        const result = await orchestrator.agent6.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent7-fusion') {
+        const result = await orchestrator.agent7.fuse(body.evidence || body.agent_results || body);
+        return sendJSON(res, 200, result);
+      }
+
       if (pathname === '/extract-claims') {
         let text = (body.text || '').trim();
         if (!text && body.url) {
@@ -1203,30 +1244,53 @@ const server = http.createServer(async (req, res) => {
           text = stripHtml(html);
         }
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' or 'url'." });
-        const claims = await handleClaimExtraction(text, userApiKey);
-        return sendJSON(res, 200, { claims, source_text: text, char_count: text.length, model_used: MODEL });
+        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
+        return sendJSON(res, 200, { claims: a1.claims, source_text: text, char_count: text.length, model_used: MODEL });
       }
 
       if (pathname === '/verify-veracity' || pathname === '/fact-check') {
         let text = (body.text || '').trim();
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' to fact-check." });
-        const result = await handleFactualVeracity(text, userApiKey);
-        return sendJSON(res, 200, result);
+        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
+        return sendJSON(res, 200, {
+          veracity_score: a1.verdict === 'TRUE / VERIFIED' ? 0.98 : (a1.verdict === 'FALSE' ? 0.05 : 0.45),
+          verdict: a1.verdict,
+          explanation: a1.evidence.join('; '),
+          correct_fact: a1.evidence[0] || 'Fact verified against authoritative records.',
+          category: a1.claims?.[0]?.type || 'general',
+          ...a1
+        });
       }
 
       if (pathname === '/analyze-cross') {
-        const resObj = await handleCrossModal(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a2 = await orchestrator.agent2.analyze(body);
+        return sendJSON(res, 200, {
+          contradiction_score: a2.verdict === 'CONTRADICTION' ? 0.94 : 0.12,
+          alignment_score: a2.verdict === 'CONSISTENT' ? 0.90 : 0.20,
+          mismatch_reason: a2.evidence[0] || 'Cross-modal inspection completed.',
+          verdict: a2.verdict,
+          ...a2
+        });
       }
 
       if (pathname === '/analyze-deepfake') {
-        const resObj = await handleDeepfakeVideo(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a3 = await orchestrator.agent3.analyze(body);
+        return sendJSON(res, 200, {
+          deepfake_confidence_score: (a3.verdict.includes('DEEPFAKE') || a3.verdict.includes('FAKE')) ? 0.95 : 0.12,
+          verdict: a3.verdict,
+          evidence_summary: a3.evidence[0] || 'Temporal inspection completed.',
+          ...a3
+        });
       }
 
       if (pathname === '/analyze-image') {
-        const resObj = await handleDeepfakeImage(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a4 = await orchestrator.agent4.analyze(body);
+        return sendJSON(res, 200, {
+          fake_confidence_score: (a4.verdict.includes('SYNTHETIC') || a4.verdict.includes('ALTERED') || a4.verdict.includes('FAKE')) ? 0.95 : 0.08,
+          verdict: a4.verdict,
+          summary: a4.evidence[0] || 'Visual synthesis inspection completed.',
+          ...a4
+        });
       }
 
       if (pathname === '/analyze-source') {
@@ -1239,19 +1303,15 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, resObj);
       }
 
-      if (pathname === '/analyze') {
-        if (body.image_url || body.image_description || body.image_base64) {
-          const resObj = await handleCrossModal(body, userApiKey);
-          return sendJSON(res, 200, resObj);
-        } else {
-          const resObj = await handleScamDetection(body.text || '');
-          return sendJSON(res, 200, resObj);
-        }
-      }
-
       if (pathname === '/consensus') {
-        const resObj = await handleConsensus(body.evidence || {});
-        return sendJSON(res, 200, resObj);
+        const evidenceIn = body.evidence || body.agent_results || body;
+        const result = await orchestrator.agent7.fuse(evidenceIn);
+        return sendJSON(res, 200, {
+          ...result,
+          trust_score: result.trust_index,
+          verdict: result.final_verdict,
+          contributing_factors: result.factors
+        });
       }
 
     } catch (err) {

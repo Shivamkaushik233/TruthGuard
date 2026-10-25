@@ -4,7 +4,8 @@
   "description": "Multi-Agent Multimodal AI Platform for Automated Digital Deception Detection",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node test/test_suite.js"
   },
   "keywords": [
     "multi-agent",

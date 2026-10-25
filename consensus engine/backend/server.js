@@ -1,13 +1,6 @@
 /**
- * TruthGuard Unified Backend & Forensic Consensus Engine
+ * TruthGuard Unified Root Server & Forensic Multi-Agent Orchestrator
  * Pure Node.js, zero npm dependencies.
- *
- * Implements:
- * 1. Factual Veracity & Real-World Fact-Checking Engine
- * 2. Multimodal Deepfake & AI Generation Forensics (Image, Video, Text)
- * 3. Behavioral Persuasion & Scam Pattern Vectorizer
- * 4. Bayesian Evidence Fusion Network (BEFN) Consensus Engine
- * 5. Static Web Dashboard & Individual Agent Interface Serving
  */
 
 const http  = require('http');
@@ -15,11 +8,12 @@ const https = require('https');
 const url   = require('url');
 const fs    = require('fs');
 const path  = require('path');
+const orchestrator = require('./engine/orchestrator');
 
 // ── Load .env ────────────────────────────────────────────────────────────────
 const envFiles = [
   path.join(__dirname, '.env'),
-  path.join(__dirname, '..', '..', '.env')
+  path.join(__dirname, 'consensus engine', 'backend', '.env')
 ];
 
 for (const envPath of envFiles) {
@@ -39,7 +33,7 @@ for (const envPath of envFiles) {
 }
 
 // ── Configuration ────────────────────────────────────────────────────────────
-const PORT          = process.env.PORT || 8006;
+const PORT          = process.env.PORT || 8080;
 const ENV_API_KEY   = process.env.GEMINI_API_KEY || '';
 const MODEL         = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 const API_URL       = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -54,6 +48,19 @@ function sendJSON(res, status, body) {
     'Access-Control-Allow-Methods':'GET, POST, OPTIONS'
   });
   res.end(payload);
+}
+
+function sendFile(res, filePath, contentType = 'text/html; charset=utf-8') {
+  if (!fs.existsSync(filePath)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    return res.end('File not found');
+  }
+  const content = fs.readFileSync(filePath, 'utf8');
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Access-Control-Allow-Origin': '*'
+  });
+  res.end(content);
 }
 
 function readBody(req) {
@@ -231,7 +238,6 @@ Return ONLY valid JSON:
 }`;
 
 async function handleFactualVeracity(text, apiKey) {
-  // 1. Try Gemini Live Fact-Check
   if (apiKey) {
     try {
       const requestBody = {
@@ -248,7 +254,6 @@ async function handleFactualVeracity(text, apiKey) {
     }
   }
 
-  // 2. High-Precision Factual Knowledge Engine
   const t = text.toLowerCase().trim();
 
   // World Leaders, Corporate Leadership & Official Positions Knowledge Index
@@ -1145,7 +1150,8 @@ async function handleConsensus(evidenceIn) {
 
 // ── HTTP Server Request Handler ──────────────────────────────────────────────
 const server = http.createServer(async (req, res) => {
-  const { pathname } = url.parse(req.url);
+  const parsedUrl = url.parse(req.url, true);
+  const pathname  = parsedUrl.pathname;
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -1156,32 +1162,16 @@ const server = http.createServer(async (req, res) => {
     return res.end();
   }
 
-  // Serve Frontend index.html
   if (req.method === 'GET' || req.method === 'HEAD') {
-    if (pathname === '/' || pathname === '/index.html' || pathname === '/dashboard') {
-      const candidates = [
-        path.join(__dirname, '..', 'frontend', 'index.html'),
-        path.join(__dirname, 'frontend', 'index.html'),
-        path.join(__dirname, '..', '..', 'consensus engine', 'frontend', 'index.html')
-      ];
-      for (const p of candidates) {
-        if (fs.existsSync(p)) {
-          if (req.method === 'HEAD') {
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-            return res.end();
-          }
-          const html = fs.readFileSync(p, 'utf8');
-          res.writeHead(200, {
-            'Content-Type': 'text/html; charset=utf-8',
-            'Access-Control-Allow-Origin': '*'
-          });
-          return res.end(html);
-        }
+    if (pathname === '/' || pathname === '/index.html' || pathname === '/dashboard' || pathname === '/consensus') {
+      if (req.method === 'HEAD') {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        return res.end();
       }
+      return sendFile(res, path.join(__dirname, 'consensus engine', 'frontend', 'index.html'));
     }
   }
 
-  // Health
   if ((req.method === 'GET' || req.method === 'HEAD') && pathname === '/health') {
     if (req.method === 'HEAD') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -1189,13 +1179,12 @@ const server = http.createServer(async (req, res) => {
     }
     return sendJSON(res, 200, {
       status: 'ok',
-      service: 'TruthGuard Multi-Agent Deception Detection Engine',
+      service: 'TruthGuard Multi-Agent Digital Deception Detection Platform',
       version: '2.1.0',
       model: MODEL
     });
   }
 
-  // API Endpoints
   if (req.method === 'POST') {
     try {
       const body = await readBody(req);
@@ -1208,7 +1197,46 @@ const server = http.createServer(async (req, res) => {
         return sendJSON(res, 200, { text, char_count: text.length });
       }
 
-      // Claim extraction
+      if (pathname === '/analyze') {
+        const result = await orchestrator.analyze({ ...body, api_key: userApiKey });
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent1-claim-factcheck') {
+        const result = await orchestrator.agent1.analyze({ ...body, apiKey: userApiKey });
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent2-cross-modal') {
+        const result = await orchestrator.agent2.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent3-video-forensics') {
+        const result = await orchestrator.agent3.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent4-image-synthesis') {
+        const result = await orchestrator.agent4.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent5-audio-forensics') {
+        const result = await orchestrator.agent5.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent6-document-ocr') {
+        const result = await orchestrator.agent6.analyze(body);
+        return sendJSON(res, 200, result);
+      }
+
+      if (pathname === '/agent7-fusion') {
+        const result = await orchestrator.agent7.fuse(body.evidence || body.agent_results || body);
+        return sendJSON(res, 200, result);
+      }
+
       if (pathname === '/extract-claims') {
         let text = (body.text || '').trim();
         if (!text && body.url) {
@@ -1216,63 +1244,74 @@ const server = http.createServer(async (req, res) => {
           text = stripHtml(html);
         }
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' or 'url'." });
-        const claims = await handleClaimExtraction(text, userApiKey);
-        return sendJSON(res, 200, { claims, source_text: text, char_count: text.length, model_used: MODEL });
+        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
+        return sendJSON(res, 200, { claims: a1.claims, source_text: text, char_count: text.length, model_used: MODEL });
       }
 
-      // Factual veracity verification (Fact-Check)
       if (pathname === '/verify-veracity' || pathname === '/fact-check') {
         let text = (body.text || '').trim();
         if (!text) return sendJSON(res, 400, { detail: "Provide 'text' to fact-check." });
-        const result = await handleFactualVeracity(text, userApiKey);
-        return sendJSON(res, 200, result);
+        const a1 = await orchestrator.agent1.analyze({ text, apiKey: userApiKey });
+        return sendJSON(res, 200, {
+          veracity_score: a1.verdict === 'TRUE / VERIFIED' ? 0.98 : (a1.verdict === 'FALSE' ? 0.05 : 0.45),
+          verdict: a1.verdict,
+          explanation: a1.evidence.join('; '),
+          correct_fact: a1.evidence[0] || 'Fact verified against authoritative records.',
+          category: a1.claims?.[0]?.type || 'general',
+          ...a1
+        });
       }
 
-      // Cross-modal contradiction
       if (pathname === '/analyze-cross') {
-        const resObj = await handleCrossModal(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a2 = await orchestrator.agent2.analyze(body);
+        return sendJSON(res, 200, {
+          contradiction_score: a2.verdict === 'CONTRADICTION' ? 0.94 : 0.12,
+          alignment_score: a2.verdict === 'CONSISTENT' ? 0.90 : 0.20,
+          mismatch_reason: a2.evidence[0] || 'Cross-modal inspection completed.',
+          verdict: a2.verdict,
+          ...a2
+        });
       }
 
-      // Video deepfake
       if (pathname === '/analyze-deepfake') {
-        const resObj = await handleDeepfakeVideo(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a3 = await orchestrator.agent3.analyze(body);
+        return sendJSON(res, 200, {
+          deepfake_confidence_score: (a3.verdict.includes('DEEPFAKE') || a3.verdict.includes('FAKE')) ? 0.95 : 0.12,
+          verdict: a3.verdict,
+          evidence_summary: a3.evidence[0] || 'Temporal inspection completed.',
+          ...a3
+        });
       }
 
-      // Image deepfake
       if (pathname === '/analyze-image') {
-        const resObj = await handleDeepfakeImage(body, userApiKey);
-        return sendJSON(res, 200, resObj);
+        const a4 = await orchestrator.agent4.analyze(body);
+        return sendJSON(res, 200, {
+          fake_confidence_score: (a4.verdict.includes('SYNTHETIC') || a4.verdict.includes('ALTERED') || a4.verdict.includes('FAKE')) ? 0.95 : 0.08,
+          verdict: a4.verdict,
+          summary: a4.evidence[0] || 'Visual synthesis inspection completed.',
+          ...a4
+        });
       }
 
-      // Source credibility
       if (pathname === '/analyze-source') {
         const resObj = await handleSourceCredibility(body.source_name, body.url);
         return sendJSON(res, 200, resObj);
       }
 
-      // Scam detection
       if (pathname === '/analyze-scam') {
         const resObj = await handleScamDetection(body.text || '');
         return sendJSON(res, 200, resObj);
       }
 
-      // Shared /analyze dispatcher
-      if (pathname === '/analyze') {
-        if (body.image_url || body.image_description || body.image_base64) {
-          const resObj = await handleCrossModal(body, userApiKey);
-          return sendJSON(res, 200, resObj);
-        } else {
-          const resObj = await handleScamDetection(body.text || '');
-          return sendJSON(res, 200, resObj);
-        }
-      }
-
-      // Consensus Engine
       if (pathname === '/consensus') {
-        const resObj = await handleConsensus(body.evidence || {});
-        return sendJSON(res, 200, resObj);
+        const evidenceIn = body.evidence || body.agent_results || body;
+        const result = await orchestrator.agent7.fuse(evidenceIn);
+        return sendJSON(res, 200, {
+          ...result,
+          trust_score: result.trust_index,
+          verdict: result.final_verdict,
+          contributing_factors: result.factors
+        });
       }
 
     } catch (err) {
@@ -1281,9 +1320,9 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
-  sendJSON(res, 404, { detail: 'Not found' });
+  sendJSON(res, 404, { detail: `Route '${pathname}' not found` });
 });
 
 server.listen(PORT, () => {
-  console.log(`🛡️  TruthGuard Forensic Consensus Server running on port ${PORT}`);
+  console.log(`🚀 TruthGuard Master Server running at http://localhost:${PORT}`);
 });

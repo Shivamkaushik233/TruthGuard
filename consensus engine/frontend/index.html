@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TruthGuard AI — Multi-Agent Digital Deception Detection</title>
+<title>TruthGuard AI — Multi-Agent Digital Deception Detection Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-base: #070a12;
-    --bg-card: rgba(14, 21, 37, 0.75);
-    --bg-card-hover: rgba(19, 29, 51, 0.85);
-    --bg-input: rgba(8, 13, 24, 0.7);
+    --bg-base: #060913;
+    --bg-card: rgba(13, 20, 38, 0.75);
+    --bg-card-hover: rgba(18, 28, 52, 0.88);
+    --bg-input: rgba(8, 14, 26, 0.75);
     --border-subtle: rgba(255, 255, 255, 0.08);
     --border-glow: rgba(0, 242, 254, 0.35);
     --text-main: #f1f5f9;
@@ -37,8 +37,8 @@
   body {
     background-color: var(--bg-base);
     background-image: 
-      radial-gradient(1000px 500px at 10% -5%, rgba(168, 85, 247, 0.12) 0%, transparent 60%),
-      radial-gradient(1100px 600px at 90% 10%, rgba(0, 242, 254, 0.10) 0%, transparent 60%),
+      radial-gradient(1000px 500px at 10% -5%, rgba(168, 85, 247, 0.14) 0%, transparent 60%),
+      radial-gradient(1100px 600px at 90% 10%, rgba(0, 242, 254, 0.12) 0%, transparent 60%),
       radial-gradient(800px 800px at 50% 90%, rgba(244, 63, 94, 0.06) 0%, transparent 70%);
     color: var(--text-main);
     font-family: var(--font-sans);
@@ -48,11 +48,124 @@
     overflow-x: hidden;
   }
 
-  /* ── Scrollbar ────────────────────────────────────────── */
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: var(--bg-base); }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(0, 242, 254, 0.4); }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0, 242, 254, 0.45); }
+
+  /* ── Auth Modal (Cyberpunk Glassmorphism) ── */
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 7, 15, 0.88);
+    backdrop-filter: blur(24px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .auth-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .auth-card {
+    background: rgba(14, 22, 42, 0.95);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 440px;
+    padding: 36px 32px;
+    box-shadow: 0 0 50px rgba(0, 242, 254, 0.15), 0 20px 40px rgba(0, 0, 0, 0.8);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--cyan), var(--purple), var(--rose));
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .auth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--cyan);
+    background: rgba(0, 242, 254, 0.08);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .auth-title {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .auth-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .btn-launch {
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #00f2fe, #4facfe);
+    color: #070a12;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-launch:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 28px rgba(0, 242, 254, 0.55);
+  }
+
+  .btn-guest {
+    width: 100%;
+    padding: 11px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-guest:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
 
   /* ── Navbar ───────────────────────────────────────────── */
   .navbar {
@@ -60,7 +173,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 36px;
-    background: rgba(10, 15, 28, 0.8);
+    background: rgba(10, 15, 28, 0.85);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-subtle);
     position: sticky;
@@ -112,7 +225,7 @@
   .nav-status {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
   }
 
   .agent-pulse {
@@ -120,11 +233,11 @@
     align-items: center;
     gap: 8px;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: 11px;
     color: var(--emerald);
     background: var(--emerald-bg);
     border: 1px solid rgba(16, 185, 129, 0.3);
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: 30px;
   }
 
@@ -143,53 +256,26 @@
     50% { opacity: 0.4; transform: scale(0.85); }
   }
 
-  .btn-outline {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-main);
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 13px;
-    padding: 7px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: var(--cyan);
-    box-shadow: 0 0 12px var(--cyan-glow);
-  }
-
   .user-profile-badge {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 5px 12px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-subtle);
+    padding: 5px 12px;
     border-radius: 30px;
   }
 
   .user-avatar {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple), var(--rose));
+    background: linear-gradient(135deg, var(--purple), var(--cyan));
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-  }
-
-  .user-meta {
-    display: flex;
-    flex-direction: column;
   }
 
   .user-name {
@@ -199,28 +285,28 @@
 
   .user-role {
     font-family: var(--font-mono);
-    font-size: 9px;
+    font-size: 10px;
     color: var(--cyan);
   }
 
   /* ── Layout Grid ──────────────────────────────────────── */
   .app-container {
-    max-width: 1440px;
+    max-width: 1480px;
     margin: 0 auto;
-    padding: 32px 36px 80px;
+    padding: 28px 32px 80px;
   }
 
   .grid-workspace {
     display: grid;
     grid-template-columns: 460px 1fr;
-    gap: 32px;
+    gap: 28px;
     align-items: start;
   }
 
-  @media (max-width: 1080px) {
+  @media (max-width: 1120px) {
     .grid-workspace { grid-template-columns: 1fr; }
     .navbar { padding: 14px 20px; }
-    .app-container { padding: 20px; }
+    .app-container { padding: 18px; }
   }
 
   /* ── Glass Cards ──────────────────────────────────────── */
@@ -229,7 +315,7 @@
     backdrop-filter: blur(20px);
     border: 1px solid var(--border-subtle);
     border-radius: 16px;
-    padding: 24px;
+    padding: 22px;
     box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.5);
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
   }
@@ -242,28 +328,61 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--border-subtle);
   }
 
   .card-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+  }
+
+  .agent-id {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Presets Bar ──────────────────────────────────────── */
+  .presets-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .preset-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .preset-chip:hover {
+    background: rgba(0, 242, 254, 0.1);
+    color: #fff;
+    border-color: rgba(0, 242, 254, 0.3);
   }
 
   /* ── Form Controls ────────────────────────────────────── */
-  .form-group { margin-bottom: 18px; }
+  .form-group { margin-bottom: 14px; }
   
   .form-label {
     display: block;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
     color: var(--text-muted);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -276,34 +395,39 @@
     color: var(--text-main);
     font-family: var(--font-sans);
     font-size: 13px;
-    padding: 12px 14px;
+    padding: 10px 12px;
     transition: all 0.2s ease;
     outline: none;
   }
 
   .input-control:focus {
     border-color: var(--cyan);
-    box-shadow: 0 0 16px var(--cyan-glow);
+    box-shadow: 0 0 14px var(--cyan-glow);
     background: rgba(8, 13, 24, 0.95);
   }
 
   textarea.input-control {
-    min-height: 105px;
+    min-height: 88px;
     resize: vertical;
     line-height: 1.5;
   }
 
-  /* ── Dropzones ────────────────────────────────────────── */
+  /* ── Dropzones Grid ───────────────────────────────────── */
+  .dropzones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
   .dropzone {
     border: 1.5px dashed rgba(255, 255, 255, 0.14);
     background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 12px 10px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
   }
 
   .dropzone:hover {
@@ -315,21 +439,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
 
   .dropzone-icon {
-    font-size: 28px;
-    color: var(--cyan);
+    font-size: 22px;
   }
 
   .dropzone-title {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
   }
 
   .dropzone-sub {
-    font-size: 11px;
+    font-size: 9px;
     color: var(--text-dim);
   }
 
@@ -339,39 +462,10 @@
     justify-content: space-between;
     background: rgba(0, 242, 254, 0.06);
     border: 1px solid rgba(0, 242, 254, 0.2);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-top: 10px;
-  }
-
-  .file-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    overflow: hidden;
-  }
-
-  .file-thumb {
-    width: 44px;
-    height: 44px;
-    border-radius: 6px;
-    object-fit: cover;
-    background: #000;
-  }
-
-  .file-name {
-    font-size: 12px;
-    font-weight: 600;
-    max-width: 240px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .file-size {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--text-dim);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    font-size: 11px;
   }
 
   .file-remove {
@@ -379,104 +473,41 @@
     border: none;
     color: var(--rose);
     cursor: pointer;
-    font-size: 16px;
-    padding: 4px;
+    font-weight: bold;
+    padding: 0 4px;
   }
 
-  /* ── Presets ──────────────────────────────────────────── */
-  .presets-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 22px;
-  }
-
-  .preset-chip {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .preset-chip:hover {
-    color: #fff;
-    border-color: var(--cyan);
-    background: rgba(0, 242, 254, 0.08);
-  }
-
-  /* ── Launch Button ────────────────────────────────────── */
-  .btn-launch {
-    width: 100%;
-    background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #7928ca 100%);
-    color: #000;
-    font-family: var(--font-sans);
-    font-weight: 800;
-    font-size: 14px;
-    letter-spacing: 0.3px;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(0, 242, 254, 0.3);
-    transition: all 0.25s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .btn-launch:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 32px rgba(0, 242, 254, 0.45);
-    filter: brightness(1.1);
-  }
-
-  .btn-launch:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    filter: grayscale(0.5);
-  }
-
-  /* ── Consensus Hero Display ───────────────────────────── */
+  /* ── Hero Consensus Verdict Card ──────────────────────── */
   .consensus-hero {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 28px;
+    grid-template-columns: 160px 1fr;
+    gap: 24px;
     align-items: center;
-    background: linear-gradient(135deg, rgba(17, 24, 39, 0.95), rgba(8, 13, 24, 0.95));
+    margin-bottom: 24px;
     border: 1px solid rgba(0, 242, 254, 0.25);
-    box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.7);
-    margin-bottom: 28px;
-  }
-
-  @media (max-width: 768px) {
-    .consensus-hero { grid-template-columns: 1fr; text-align: center; }
+    background: linear-gradient(135deg, rgba(14, 22, 42, 0.9), rgba(18, 28, 56, 0.75));
+    position: relative;
+    overflow: hidden;
   }
 
   .gauge-wrapper {
     position: relative;
-    width: 180px;
-    height: 180px;
-    margin: 0 auto;
+    width: 140px;
+    height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .gauge-svg {
+    width: 100%;
+    height: 100%;
     transform: rotate(-90deg);
-    width: 180px;
-    height: 180px;
   }
 
   .gauge-bg {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.08);
+    stroke: rgba(255, 255, 255, 0.06);
     stroke-width: 12;
   }
 
@@ -486,335 +517,304 @@
     stroke-width: 12;
     stroke-linecap: round;
     stroke-dasharray: 440;
-    stroke-dashoffset: 440;
-    transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
+    stroke-dashoffset: 220;
+    transition: stroke-dashoffset 1s ease, stroke 0.4s ease;
   }
 
   .gauge-center {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
   }
 
   .gauge-number {
-    font-size: 38px;
-    font-weight: 800;
     font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 800;
     line-height: 1;
+    color: #fff;
   }
 
   .gauge-sub {
-    font-size: 10px;
+    font-family: var(--font-mono);
+    font-size: 9px;
     color: var(--text-dim);
-    text-transform: uppercase;
-    font-weight: 700;
     letter-spacing: 0.5px;
     margin-top: 4px;
   }
 
-  .verdict-content {
+  .verdict-header-row {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
   }
 
   .verdict-badge {
-    align-self: flex-start;
     font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 800;
-    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
     border-radius: 20px;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
   }
 
-  .verdict-badge.trusted   { background: var(--emerald-bg); color: var(--emerald); border: 1px solid rgba(16, 185, 129, 0.4); }
-  .verdict-badge.suspicious { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.4); }
-  .verdict-badge.deceptive  { background: var(--rose-bg); color: var(--rose); border: 1px solid rgba(244, 63, 94, 0.4); box-shadow: 0 0 16px rgba(244, 63, 94, 0.25); }
-  .verdict-badge.uncertain  { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.25); }
+  .verdict-badge.trusted {
+    background: var(--emerald-bg);
+    color: var(--emerald);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+  }
+
+  .verdict-badge.suspicious {
+    background: var(--amber-bg);
+    color: var(--amber);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+
+  .verdict-badge.deceptive {
+    background: var(--rose-bg);
+    color: var(--rose);
+    border: 1px solid rgba(244, 63, 94, 0.35);
+  }
+
+  .verdict-badge.uncertain {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+  }
+
+  .meta-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
 
   .verdict-title {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 800;
     letter-spacing: -0.4px;
+    margin-bottom: 6px;
+    color: #fff;
   }
 
   .verdict-desc {
     color: var(--text-muted);
-    font-size: 13.5px;
-    line-height: 1.6;
-    margin-bottom: 6px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
   }
 
-  .factor-list {
-    list-style: none;
+  .consensus-stats-bar {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 12px;
-    margin-top: 8px;
+    gap: 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
   }
 
-  .factor-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
+  .consensus-stat strong {
+    color: var(--text-main);
   }
 
   .conflict-box {
-    margin-top: 14px;
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    background: rgba(244, 63, 94, 0.08);
+    border: 1px solid rgba(244, 63, 94, 0.3);
     border-radius: 8px;
-    padding: 10px 14px;
-    color: var(--amber);
+    padding: 8px 12px;
     font-size: 12px;
+    color: #fecdd3;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    margin-top: 10px;
   }
 
-  /* ── Multi-Agent Cards Grid ───────────────────────────── */
+  /* ── 7 Agents Grid ─────────────────────────────────────── */
   .agents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
   }
 
   .agent-card {
     background: var(--bg-card);
     border: 1px solid var(--border-subtle);
     border-radius: 14px;
-    padding: 20px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
   }
 
   .agent-card:hover {
     border-color: rgba(0, 242, 254, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+    background: var(--bg-card-hover);
   }
 
   .agent-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .agent-id {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    color: var(--cyan);
-    font-weight: 700;
+    margin-bottom: 10px;
   }
 
   .agent-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
+    color: #fff;
   }
 
   .agent-status-pill {
     font-family: var(--font-mono);
-    font-size: 10px;
-    padding: 3px 8px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
     border-radius: 12px;
-    font-weight: 600;
+    text-transform: uppercase;
   }
 
-  .agent-status-pill.idle { background: rgba(255, 255, 255, 0.05); color: var(--text-dim); }
-  .agent-status-pill.running { background: rgba(0, 242, 254, 0.15); color: var(--cyan); animation: pulseDot 1.5s infinite; }
-  .agent-status-pill.done { background: var(--emerald-bg); color: var(--emerald); }
-  .agent-status-pill.threat { background: var(--rose-bg); color: var(--rose); }
+  .agent-status-pill.idle {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-dim);
+  }
+
+  .agent-status-pill.running {
+    background: rgba(0, 242, 254, 0.12);
+    color: var(--cyan);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+  }
+
+  .agent-status-pill.done {
+    background: var(--emerald-bg);
+    color: var(--emerald);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .agent-status-pill.threat {
+    background: var(--rose-bg);
+    color: var(--rose);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+  }
+
+  .agent-status-pill.neutral {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+  }
+
+  .agent-verdict-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--cyan);
+  }
 
   .meter-bar {
-    margin: 10px 0;
+    margin-bottom: 10px;
   }
 
   .meter-label-row {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-dim);
     margin-bottom: 4px;
-    color: var(--text-muted);
   }
 
   .meter-track {
     width: 100%;
-    height: 6px;
+    height: 4px;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
   }
 
   .meter-fill {
     height: 100%;
-    border-radius: 3px;
-    transition: width 1s ease;
+    border-radius: 4px;
+    transition: width 0.6s ease;
   }
 
-  .meter-fill.good { background: linear-gradient(90deg, #10b981, #00f2fe); }
-  .meter-fill.warn { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-  .meter-fill.bad  { background: linear-gradient(90deg, #f43f5e, #dc2626); }
+  .meter-fill.good { background: var(--emerald); }
+  .meter-fill.warn { background: var(--amber); }
+  .meter-fill.bad  { background: var(--rose); }
 
   .finding-box {
-    font-size: 11.5px;
-    color: var(--text-main);
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(8, 14, 26, 0.6);
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 10px;
-    margin-top: 10px;
-    line-height: 1.5;
-  }
-
-  /* ── Login Modal / Screen ─────────────────────────────── */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(4, 7, 15, 0.85);
-    backdrop-filter: blur(20px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    padding: 20px;
-    transition: opacity 0.3s ease;
-  }
-
-  .modal-overlay.hidden { display: none; }
-
-  .login-card {
-    width: 100%;
-    max-width: 440px;
-    background: rgba(13, 20, 36, 0.95);
-    border: 1px solid rgba(0, 242, 254, 0.3);
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 242, 254, 0.15);
-    border-radius: 20px;
-    padding: 36px 32px;
-    position: relative;
-  }
-
-  .login-header {
-    text-align: center;
-    margin-bottom: 26px;
-  }
-
-  .login-logo {
-    width: 52px;
-    height: 52px;
-    margin: 0 auto 14px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--cyan), var(--purple));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    box-shadow: 0 0 25px var(--cyan-glow);
-  }
-
-  .login-title {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    color: #fff;
-  }
-
-  .login-sub {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
-
-  .auth-tabs {
-    display: flex;
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 10px;
-    padding: 4px;
-    margin-bottom: 22px;
-  }
-
-  .auth-tab {
-    flex: 1;
-    text-align: center;
-    padding: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 7px;
-    cursor: pointer;
+    font-size: 11px;
     color: var(--text-muted);
-    transition: all 0.2s ease;
+    min-height: 52px;
+    line-height: 1.45;
   }
 
-  .auth-tab.active {
-    background: rgba(0, 242, 254, 0.15);
+  .finding-box ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .finding-box li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 4px;
+  }
+
+  .finding-box li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
     color: var(--cyan);
-    font-weight: 700;
   }
 
-  .btn-guest {
-    width: 100%;
-    margin-top: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-main);
-    padding: 12px;
-    font-weight: 600;
-    font-size: 13px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .agent-footer {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .btn-guest:hover {
-    background: rgba(0, 242, 254, 0.1);
-    border-color: var(--cyan);
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
   }
 </style>
 </head>
 <body>
 
-<!-- ── Login & Operator Authentication Modal ── -->
-<div class="modal-overlay" id="authModal">
-  <div class="login-card">
-    <div class="login-header">
-      <div class="login-logo">🛡️</div>
-      <h2 class="login-title">TruthGuard AI</h2>
-      <p class="login-sub">Multi-Agent Multimodal Deception Forensics</p>
-    </div>
-
-    <div class="auth-tabs">
-      <div class="auth-tab active" id="tabSignIn">Sign In</div>
-      <div class="auth-tab" id="tabRegister">Register Operator</div>
+<!-- ── Cyberpunk Authentication Modal ── -->
+<div class="auth-overlay" id="authModal">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-badge">🔐 FORENSIC CLEARANCE VERIFICATION</div>
+      <h2 class="auth-title">TruthGuard Intelligence</h2>
+      <p class="auth-sub">Enter credential credentials to access the 7-Agent Neural Truth Mesh.</p>
     </div>
 
     <form id="authForm">
       <div class="form-group">
-        <label class="form-label">Operator ID / Email</label>
-        <input type="text" class="input-control" id="authEmail" value="alex.vance@truthguard.io" required>
+        <label class="form-label">Investigator Identifier / Email</label>
+        <input type="text" class="input-control" id="authEmail" value="analyst@truthguard.io" required>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Security Clearance Password</label>
+        <label class="form-label">Access Clearance Key</label>
         <input type="password" class="input-control" id="authPassword" value="••••••••••••" required>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Forensic Clearance Level</label>
+        <label class="form-label">Clearance Protocol</label>
         <select class="input-control" id="authRole">
           <option value="Lead Threat Investigator">Clearance L4 — Lead Threat Investigator</option>
-          <option value="Senior Forensic Analyst">Clearance L3 — Senior Forensic Analyst</option>
+          <option value="Senior Media Forensics Analyst">Clearance L3 — Senior Media Forensics Analyst</option>
           <option value="SecOps Intelligence Officer">Clearance L2 — SecOps Intelligence Officer</option>
         </select>
       </div>
@@ -836,22 +836,22 @@
     <div class="brand-logo">🛡️</div>
     <div>
       <span class="brand-name">TruthGuard</span>
-      <span class="brand-tag">v2.0 MULTI-AGENT</span>
+      <span class="brand-tag">v2.1 FORENSIC MESH</span>
     </div>
   </a>
 
   <div class="nav-status">
-    <div class="agent-pulse">
-      <span>7/7 NEURAL AGENTS ONLINE</span>
+    <div class="agent-pulse" id="topMeshStatus">
+      <span>7/7 SPECIALIST AGENTS ONLINE</span>
     </div>
 
     <div class="user-profile-badge" id="userBadge">
       <div class="user-avatar" id="avatarInitial">A</div>
       <div class="user-meta">
-        <span class="user-name" id="displayUserName">Agent Alex Vance</span>
-        <span class="user-role" id="displayUserRole">Lead Investigator</span>
+        <span class="user-name" id="displayUserName">Lead Analyst</span>
+        <span class="user-role" id="displayUserRole">Investigator</span>
       </div>
-      <button class="file-remove" id="btnLogout" title="Sign Out" style="margin-left: 6px; font-size: 12px; color: var(--text-dim);">⏻</button>
+      <button class="file-remove" id="btnLogout" title="Sign Out" style="margin-left: 6px; font-size: 13px;">⏻</button>
     </div>
   </div>
 </header>
@@ -867,84 +867,110 @@
         <span class="agent-id">INTAKE STATION</span>
       </div>
 
-      <!-- Presets bar -->
+      <!-- Quick Scenario Presets -->
       <div class="form-label">Quick Scenario Presets</div>
       <div class="presets-bar">
+        <button class="preset-chip" id="presetMoonLanding">🚀 Apollo 11 Moon Landing</button>
         <button class="preset-chip" id="presetDeathHoax">⚰️ Celebrity Death Hoax</button>
-        <button class="preset-chip" id="presetFalseLeader">🏛️ Fabricated Leader Claim</button>
-        <button class="preset-chip" id="presetTrueNews">✅ Verified Real News</button>
-        <button class="preset-chip" id="presetFake">🚨 AI Deepfake Image</button>
+        <button class="preset-chip" id="preset500States">🏛️ India 500 States</button>
+        <button class="preset-chip" id="presetFreezing">🧊 Water Freezing Point</button>
+        <button class="preset-chip" id="presetCancer">☕ Miracle Cancer Cure</button>
+        <button class="preset-chip" id="presetAiSpec">🤖 AI Speculation 2027</button>
         <button class="preset-chip" id="presetScam">⚠️ Crypto Grant Scam</button>
-        <button class="preset-chip" id="presetContradiction">📰 War News Contradiction</button>
         <button class="preset-chip" id="presetReset">🔄 Reset</button>
       </div>
 
       <!-- 1. Text & Claim -->
       <div class="form-group">
-        <label class="form-label">Text, Headline or Suspicious Message</label>
-        <textarea class="input-control" id="inText" placeholder="Paste article text, social media headline, or suspicious message to analyze..."></textarea>
+        <label class="form-label">Claim Text / Headline / Narrative</label>
+        <textarea class="input-control" id="inText" placeholder="Paste article text, factual assertion, or message to investigate..."></textarea>
       </div>
 
-      <!-- 2. Image Deepfake Upload -->
-      <div class="form-group">
-        <label class="form-label">Image Forensics (AI / Deepfake Check)</label>
-        <div class="dropzone" id="imgDropzone">
-          <input type="file" id="imgFile" accept="image/*" style="display: none;">
-          <div class="dropzone-inner">
-            <span class="dropzone-icon">🖼️</span>
-            <span class="dropzone-title">Upload Image for Deepfake Analysis</span>
-            <span class="dropzone-sub">PNG, JPEG, WEBP · Inspects facial geometry, skin texture, diffusion frequency</span>
-          </div>
-        </div>
-        <div class="file-preview" id="imgPreview">
-          <div class="file-info">
-            <img class="file-thumb" id="imgThumb" alt="preview">
-            <div>
-              <div class="file-name" id="imgName">image.jpg</div>
-              <div class="file-size" id="imgSize">1.2 MB</div>
+      <!-- 2. Multimodal Dropzones Grid -->
+      <div class="form-label">Multimodal Forensic Attachments</div>
+      <div class="dropzones-grid">
+        
+        <!-- Image Dropzone -->
+        <div>
+          <div class="dropzone" id="imgDropzone">
+            <input type="file" id="imgFile" accept="image/*" style="display: none;">
+            <div class="dropzone-inner">
+              <span class="dropzone-icon">🖼️</span>
+              <span class="dropzone-title">Image Forensics</span>
+              <span class="dropzone-sub">PNG, JPG, WEBP</span>
             </div>
           </div>
-          <button class="file-remove" id="imgRemove">✕</button>
-        </div>
-      </div>
-
-      <!-- 3. Video Deepfake Upload -->
-      <div class="form-group">
-        <label class="form-label">Video Forensics (Lip-sync & Face Swap)</label>
-        <div class="dropzone" id="vidDropzone">
-          <input type="file" id="vidFile" accept="video/*" style="display: none;">
-          <div class="dropzone-inner">
-            <span class="dropzone-icon">🎥</span>
-            <span class="dropzone-title">Upload Video Clip for Forensics</span>
-            <span class="dropzone-sub">MP4, WEBM · X-CLIP, ViT temporal artifacts & audio-visual coherence</span>
+          <div class="file-preview" id="imgPreview">
+            <span id="imgName">image.jpg</span>
+            <button class="file-remove" id="imgRemove">✕</button>
           </div>
         </div>
-        <div class="file-preview" id="vidPreview">
-          <div class="file-info">
-            <span style="font-size: 24px;">🎬</span>
-            <div>
-              <div class="file-name" id="vidName">clip.mp4</div>
-              <div class="file-size" id="vidSize">4.8 MB</div>
+
+        <!-- Video Dropzone -->
+        <div>
+          <div class="dropzone" id="vidDropzone">
+            <input type="file" id="vidFile" accept="video/*" style="display: none;">
+            <div class="dropzone-inner">
+              <span class="dropzone-icon">🎬</span>
+              <span class="dropzone-title">Video Forensics</span>
+              <span class="dropzone-sub">MP4, WEBM</span>
             </div>
           </div>
-          <button class="file-remove" id="vidRemove">✕</button>
+          <div class="file-preview" id="vidPreview">
+            <span id="vidName">clip.mp4</span>
+            <button class="file-remove" id="vidRemove">✕</button>
+          </div>
         </div>
+
+        <!-- Audio Dropzone -->
+        <div>
+          <div class="dropzone" id="audioDropzone">
+            <input type="file" id="audioFile" accept="audio/*" style="display: none;">
+            <div class="dropzone-inner">
+              <span class="dropzone-icon">🎙️</span>
+              <span class="dropzone-title">Voice / Audio</span>
+              <span class="dropzone-sub">WAV, MP3, M4A</span>
+            </div>
+          </div>
+          <div class="file-preview" id="audioPreview">
+            <span id="audioName">audio.wav</span>
+            <button class="file-remove" id="audioRemove">✕</button>
+          </div>
+        </div>
+
+        <!-- Document Dropzone -->
+        <div>
+          <div class="dropzone" id="docDropzone">
+            <input type="file" id="docFile" accept=".pdf,.doc,.docx,.txt" style="display: none;">
+            <div class="dropzone-inner">
+              <span class="dropzone-icon">📄</span>
+              <span class="dropzone-title">Document / PDF</span>
+              <span class="dropzone-sub">PDF, DOCX, Scan</span>
+            </div>
+          </div>
+          <div class="file-preview" id="docPreview">
+            <span id="docName">document.pdf</span>
+            <button class="file-remove" id="docRemove">✕</button>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 4. Source URL -->
+      <!-- 3. Source URL -->
       <div class="form-group">
-        <label class="form-label">Publisher / Source URL</label>
-        <input type="text" class="input-control" id="inUrl" placeholder="https://news-outlet.org/story-123 or domain.info">
+        <label class="form-label">Publisher / Wire URL (Optional)</label>
+        <input type="text" class="input-control" id="inUrl" placeholder="https://reuters.com/article/123 or domain.info">
       </div>
 
       <!-- Run Button -->
       <button class="btn-launch" id="btnRun">
-        <span>⚡ Run Multi-Agent Forensic Investigation</span>
+        <span>⚡ Launch 7-Agent Forensic Investigation</span>
       </button>
     </section>
 
-    <!-- ── Right: Results & Multi-Agent Radar ── -->
+    <!-- ── Right: Results & 7-Agent Grid ── -->
     <section>
+      
       <!-- Hero Consensus Verdict -->
       <div class="glass-card consensus-hero" id="consensusCard">
         <div class="gauge-wrapper">
@@ -959,13 +985,24 @@
         </div>
 
         <div class="verdict-content">
-          <div class="verdict-badge uncertain" id="verdictBadge">AWAITING EVIDENCE</div>
+          <div class="verdict-header-row">
+            <div class="verdict-badge uncertain" id="verdictBadge">AWAITING EVIDENCE</div>
+            <span class="meta-pill" id="evidenceStrengthPill">EVIDENCE: AWAITING</span>
+            <span class="meta-pill" id="confidencePill">CONFIDENCE: --%</span>
+          </div>
+
           <h1 class="verdict-title" id="verdictHeadline">Consensus Engine Ready</h1>
           <p class="verdict-desc" id="verdictSummary">
-            Upload text, images, or media to run collaborative Bayesian inference across all 7 specialized AI agents.
+            Upload text, images, video, audio, or document assets to execute Bayesian evidence fusion across all 7 forensic agents.
           </p>
 
-          <ul class="factor-list" id="factorsList"></ul>
+          <div class="consensus-stats-bar" id="consensusBreakdown">
+            <span class="consensus-stat">Supporting: <strong id="cntSupporting">0</strong></span>
+            <span class="consensus-stat">Contradicting: <strong id="cntContradicting">0</strong></span>
+            <span class="consensus-stat">Neutral: <strong id="cntNeutral">0</strong></span>
+            <span class="consensus-stat">Not Applicable: <strong id="cntNA">0</strong></span>
+          </div>
+
           <div class="conflict-box" id="conflictBox" style="display: none;">
             <span>⚠️</span>
             <span id="conflictText"></span>
@@ -973,302 +1010,356 @@
         </div>
       </div>
 
-      <!-- 7 Agent Grid -->
-      <div class="agents-grid" id="agentsGrid">
+      <!-- 7 Specialist Agent Cards Grid -->
+      <div class="agents-grid">
 
-        <!-- Agent 1: Claim Extraction -->
-        <div class="agent-card" id="card-claim">
+        <!-- Agent 1: Claim Extraction & Fact-Check -->
+        <div class="agent-card" id="card-agent1">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 01</span>
-                <h3 class="agent-name">Claim Extractor</h3>
+                <h3 class="agent-name">Claim Extraction & Fact-Check</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-claim">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent1">IDLE</span>
             </div>
-            <div class="finding-box" id="finding-claim">Awaiting textual assertions to decompose into atomic verifiable claims.</div>
+            <div class="agent-verdict-tag" id="verdict-agent1">--</div>
+            <div class="meter-bar">
+              <div class="meter-label-row">
+                <span>Confidence</span>
+                <span id="val-agent1">0%</span>
+              </div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent1" style="width: 0%;"></div></div>
+            </div>
+            <div class="finding-box" id="finding-agent1">Extracts atomic assertions and verifies against authoritative historical & scientific records.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent1">No constraints</span>
+            <span id="time-agent1">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 2: Cross-Modal Contradiction -->
-        <div class="agent-card" id="card-cross">
+        <!-- Agent 2: Cross-Modal Alignment -->
+        <div class="agent-card" id="card-agent2">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 02</span>
                 <h3 class="agent-name">Cross-Modal Alignment</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-cross">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent2">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent2">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Contradiction Index</span>
-                <span id="val-cross">0%</span>
+                <span>Alignment Index</span>
+                <span id="val-agent2">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill warn" id="bar-cross" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent2" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-cross">Compares visual semantic features against claimed text.</div>
+            <div class="finding-box" id="finding-agent2">Compares text vs image vs video vs audio for semantic contradictions.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent2">Requires 2+ modalities</span>
+            <span id="time-agent2">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 3: Video Deepfake -->
-        <div class="agent-card" id="card-video">
+        <!-- Agent 3: Video Forensics -->
+        <div class="agent-card" id="card-agent3">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 03</span>
-                <h3 class="agent-name">Video Deepfake Forensics</h3>
+                <h3 class="agent-name">Video Forensics</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-video">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent3">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent3">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Deepfake Probability</span>
-                <span id="val-video">0%</span>
+                <span>Confidence</span>
+                <span id="val-agent3">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill bad" id="bar-video" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent3" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-video">Temporal consistency, ViT face artifacts, and phoneme-viseme lip-sync analysis.</div>
+            <div class="finding-box" id="finding-agent3">Analyzes lip-sync, temporal artifacts, facial boundary jitter, and neural diffusion video models.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent3">Video stream required</span>
+            <span id="time-agent3">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 4: Image Deepfake -->
-        <div class="agent-card" id="card-image">
+        <!-- Agent 4: Image Deepfake / Synthesis -->
+        <div class="agent-card" id="card-agent4">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 04</span>
-                <h3 class="agent-name">Image Deepfake Detector</h3>
+                <h3 class="agent-name">Image Deepfake / Synthesis</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-image">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent4">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent4">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>AI Synthesis Confidence</span>
-                <span id="val-image">0%</span>
+                <span>Confidence</span>
+                <span id="val-agent4">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill bad" id="bar-image" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent4" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-image">Inspects diffusion frequency anomalies, facial geometry, and corneal specular reflections.</div>
+            <div class="finding-box" id="finding-agent4">Inspects diffusion grid artifacts, corneal reflections, and distinguishes compression from deepfakes.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent4">Image raster required</span>
+            <span id="time-agent4">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 5: Source Credibility -->
-        <div class="agent-card" id="card-source">
+        <!-- Agent 5: Audio / Voice Forensics -->
+        <div class="agent-card" id="card-agent5">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 05</span>
-                <h3 class="agent-name">Source Credibility Graph</h3>
+                <h3 class="agent-name">Audio / Voice Forensics</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-source">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent5">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent5">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Domain Trust Score</span>
-                <span id="val-source">0%</span>
+                <span>Confidence</span>
+                <span id="val-agent5">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill good" id="bar-source" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent5" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-source">Evaluates publisher provenance, domain lifespan, and historical accuracy records.</div>
+            <div class="finding-box" id="finding-agent5">Examines vocal tract formants, prosody flatness, respiratory pause continuity, and voice clones.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent5">Audio waveform required</span>
+            <span id="time-agent5">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 6: Scam Detection -->
-        <div class="agent-card" id="card-scam">
+        <!-- Agent 6: Document & OCR Forensics -->
+        <div class="agent-card" id="card-agent6">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 06</span>
-                <h3 class="agent-name">Scam & Persuasion Engine</h3>
+                <h3 class="agent-name">Document & OCR Forensics</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-scam">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent6">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent6">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Social Engineering Risk</span>
-                <span id="val-scam">0%</span>
+                <span>Confidence</span>
+                <span id="val-agent6">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill bad" id="bar-scam" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent6" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-scam">Measures urgency triggers, cognitive manipulation, and financial advance fee patterns.</div>
+            <div class="finding-box" id="finding-agent6">Inspects vector font descriptors, baseline alignment, altered figures, and PDF object streams.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent6">Document container required</span>
+            <span id="time-agent6">0ms</span>
           </div>
         </div>
 
-        <!-- Agent 7: Factual Veracity Engine -->
-        <div class="agent-card" id="card-veracity">
+        <!-- Agent 7: Bayesian Evidence Fusion -->
+        <div class="agent-card" id="card-agent7">
           <div>
             <div class="agent-header">
               <div>
                 <span class="agent-id">AGENT 07</span>
-                <h3 class="agent-name">Factual Veracity Engine</h3>
+                <h3 class="agent-name">Bayesian Evidence Fusion</h3>
               </div>
-              <span class="agent-status-pill idle" id="status-veracity">IDLE</span>
+              <span class="agent-status-pill idle" id="status-agent7">IDLE</span>
             </div>
+            <div class="agent-verdict-tag" id="verdict-agent7">--</div>
             <div class="meter-bar">
               <div class="meter-label-row">
-                <span>Factual Veracity Score</span>
-                <span id="val-veracity">0%</span>
+                <span>Trust Calibration</span>
+                <span id="val-agent7">0%</span>
               </div>
-              <div class="meter-track"><div class="meter-fill good" id="bar-veracity" style="width: 0%;"></div></div>
+              <div class="meter-track"><div class="meter-fill good" id="bar-agent7" style="width: 0%;"></div></div>
             </div>
-            <div class="finding-box" id="finding-veracity">Cross-examines real-world institutional facts, government leadership, and known hoaxes.</div>
+            <div class="finding-box" id="finding-agent7">Fuses active modalities via weighted Bayesian inference without penalizing unsubmitted modalities.</div>
+          </div>
+          <div class="agent-footer">
+            <span id="lim-agent7">Active modality aggregator</span>
+            <span id="time-agent7">0ms</span>
           </div>
         </div>
 
       </div>
     </section>
+
   </div>
 </main>
 
 <script>
 // ── Session & Authentication State ──────────────────────────────────────────
 const AUTH_KEY = 'truthguard_auth_user';
-const API_KEY_STORAGE = 'truthguard_gemini_key';
 
 function initAuth() {
   const user = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
-  if (user) {
-    document.getElementById('authModal').classList.add('hidden');
-    document.getElementById('displayUserName').textContent = user.name;
-    document.getElementById('displayUserRole').textContent = user.role;
-    document.getElementById('avatarInitial').textContent = (user.name || 'A')[0].toUpperCase();
+  const modal = document.getElementById('authModal');
+  if (!user) {
+    modal.classList.remove('hidden');
   } else {
-    document.getElementById('authModal').classList.remove('hidden');
+    modal.classList.add('hidden');
+    document.getElementById('displayUserName').textContent = user.name || 'Analyst';
+    document.getElementById('displayUserRole').textContent = user.role || 'Investigator';
+    document.getElementById('avatarInitial').textContent = (user.name || 'A')[0].toUpperCase();
   }
 }
-
-document.getElementById('btnInstantDemo').addEventListener('click', () => {
-  const demoUser = {
-    name: 'Special Agent Sarah Chen',
-    role: 'Lead Forensic Threat Officer',
-    email: 'sarah.chen@truthguard.io'
-  };
-  localStorage.setItem(AUTH_KEY, JSON.stringify(demoUser));
-  initAuth();
-});
 
 document.getElementById('authForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const email = document.getElementById('authEmail').value.trim();
   const role = document.getElementById('authRole').value;
   const name = email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase());
-  const user = { name: name || 'Operator', role, email };
-  localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+  localStorage.setItem(AUTH_KEY, JSON.stringify({ name, email, role }));
+  initAuth();
+});
+
+document.getElementById('btnInstantDemo').addEventListener('click', () => {
+  localStorage.setItem(AUTH_KEY, JSON.stringify({
+    name: 'Alex Vance',
+    email: 'alex.vance@truthguard.io',
+    role: 'Lead Threat Investigator'
+  }));
   initAuth();
 });
 
 document.getElementById('btnLogout').addEventListener('click', () => {
   localStorage.removeItem(AUTH_KEY);
-  location.reload();
+  initAuth();
 });
 
-// ── File Pickers & Preview ──────────────────────────────────────────────────
-let selectedImgBase64 = null;
-let selectedImgMime = null;
-let selectedImgName = null;
+// ── File Attachments State ──────────────────────────────────────────────────
+let selectedImgBase64 = null, selectedImgName = '';
+let selectedVidBase64 = null, selectedVidName = '';
+let selectedAudioBase64 = null, selectedAudioName = '';
+let selectedDocBase64 = null, selectedDocName = '';
 
-let selectedVidBase64 = null;
-let selectedVidMime = null;
-let selectedVidName = null;
-
-function setupDropzone(dropzoneId, inputId, previewId, thumbId, nameId, sizeId, onFileLoaded, onClear) {
-  const dropzone = document.getElementById(dropzoneId);
-  const input = document.getElementById(inputId);
+function setupDropzone(dropId, inputId, previewId, nameId, onFileLoaded, onCleared) {
+  const drop = document.getElementById(dropId);
+  const fileInput = document.getElementById(inputId);
   const preview = document.getElementById(previewId);
+  const nameEl = document.getElementById(nameId);
 
-  dropzone.addEventListener('click', () => input.click());
+  drop.addEventListener('click', () => fileInput.click());
 
-  dropzone.addEventListener('dragover', (e) => {
+  drop.addEventListener('dragover', (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = 'var(--cyan)';
+    drop.style.borderColor = 'var(--cyan)';
   });
 
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.style.borderColor = '';
+  drop.addEventListener('dragleave', () => {
+    drop.style.borderColor = 'rgba(255, 255, 255, 0.14)';
   });
 
-  dropzone.addEventListener('drop', (e) => {
+  drop.addEventListener('drop', (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = '';
-    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    drop.style.borderColor = 'rgba(255, 255, 255, 0.14)';
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
 
-  input.addEventListener('change', () => {
-    if (input.files[0]) handleFile(input.files[0]);
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
   });
 
   function handleFile(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
       const b64 = e.target.result.split(',')[1];
-      if (thumbId) document.getElementById(thumbId).src = e.target.result;
-      document.getElementById(nameId).textContent = file.name;
-      document.getElementById(sizeId).textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      nameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
       preview.style.display = 'flex';
-      dropzone.style.display = 'none';
-      onFileLoaded(b64, file.type, file.name);
+      onFileLoaded(b64, file.name);
     };
     reader.readAsDataURL(file);
   }
 }
 
-setupDropzone('imgDropzone', 'imgFile', 'imgPreview', 'imgThumb', 'imgName', 'imgSize',
-  (b64, mime, name) => { selectedImgBase64 = b64; selectedImgMime = mime; selectedImgName = name; });
-
-document.getElementById('imgRemove').addEventListener('click', () => {
-  selectedImgBase64 = null;
-  document.getElementById('imgFile').value = '';
+setupDropzone('imgDropzone', 'imgFile', 'imgPreview', 'imgName', (b64, name) => {
+  selectedImgBase64 = b64; selectedImgName = name;
+});
+document.getElementById('imgRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  selectedImgBase64 = null; selectedImgName = '';
   document.getElementById('imgPreview').style.display = 'none';
-  document.getElementById('imgDropzone').style.display = 'block';
+  document.getElementById('imgFile').value = '';
 });
 
-setupDropzone('vidDropzone', 'vidFile', 'vidPreview', null, 'vidName', 'vidSize',
-  (b64, mime, name) => { selectedVidBase64 = b64; selectedVidMime = mime; selectedVidName = name; });
-
-document.getElementById('vidRemove').addEventListener('click', () => {
-  selectedVidBase64 = null;
-  document.getElementById('vidFile').value = '';
+setupDropzone('vidDropzone', 'vidFile', 'vidPreview', 'vidName', (b64, name) => {
+  selectedVidBase64 = b64; selectedVidName = name;
+});
+document.getElementById('vidRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  selectedVidBase64 = null; selectedVidName = '';
   document.getElementById('vidPreview').style.display = 'none';
-  document.getElementById('vidDropzone').style.display = 'block';
+  document.getElementById('vidFile').value = '';
 });
 
-// ── Presets ─────────────────────────────────────────────────────────────────
+setupDropzone('audioDropzone', 'audioFile', 'audioPreview', 'audioName', (b64, name) => {
+  selectedAudioBase64 = b64; selectedAudioName = name;
+});
+document.getElementById('audioRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  selectedAudioBase64 = null; selectedAudioName = '';
+  document.getElementById('audioPreview').style.display = 'none';
+  document.getElementById('audioFile').value = '';
+});
+
+setupDropzone('docDropzone', 'docFile', 'docPreview', 'docName', (b64, name) => {
+  selectedDocBase64 = b64; selectedDocName = name;
+});
+document.getElementById('docRemove').addEventListener('click', (e) => {
+  e.stopPropagation();
+  selectedDocBase64 = null; selectedDocName = '';
+  document.getElementById('docPreview').style.display = 'none';
+  document.getElementById('docFile').value = '';
+});
+
+// ── Quick Presets ───────────────────────────────────────────────────────────
+document.getElementById('presetMoonLanding').addEventListener('click', () => {
+  document.getElementById('inText').value = 'NASA successfully landed humans on the Moon in 1969.';
+  document.getElementById('inUrl').value = 'https://nasa.gov/apollo11';
+});
+
 document.getElementById('presetDeathHoax').addEventListener('click', () => {
-  document.getElementById('inText').value = "Elon Musk is dead";
-  document.getElementById('inUrl').value = "https://viral-breaking-rumor.net";
+  document.getElementById('inText').value = 'Elon Musk passed away in a tragic car accident early this morning.';
+  document.getElementById('inUrl').value = 'https://breaking-viral-news.info';
 });
 
-document.getElementById('presetTrueNews').addEventListener('click', () => {
-  document.getElementById('inText').value = "Narendra Modi is the Prime Minister of India";
-  document.getElementById('inUrl').value = "https://reuters.com";
+document.getElementById('preset500States').addEventListener('click', () => {
+  document.getElementById('inText').value = 'India currently has 500 states.';
+  document.getElementById('inUrl').value = '';
 });
 
-document.getElementById('presetFalseLeader').addEventListener('click', () => {
-  document.getElementById('inText').value = "Shivam Kaushik is the Prime Minister of India";
-  document.getElementById('inUrl').value = "https://unverified-social-wire.net";
+document.getElementById('presetFreezing').addEventListener('click', () => {
+  document.getElementById('inText').value = 'Water freezes at 0 degrees Celsius at standard atmospheric pressure.';
+  document.getElementById('inUrl').value = 'https://physics.nist.gov';
 });
 
-document.getElementById('presetFake').addEventListener('click', () => {
-  document.getElementById('inText').value = "Leaked high-resolution portrait showing newly developed cybernetic human cloning project presented at undisclosed summit.";
-  document.getElementById('inUrl').value = "ai-synth-lab.internal.net";
-  selectedImgName = "synthetic_face_midjourney_flux.png";
-  document.getElementById('imgName').textContent = selectedImgName;
-  document.getElementById('imgSize').textContent = "1.42 MB";
-  document.getElementById('imgPreview').style.display = 'flex';
-  document.getElementById('imgDropzone').style.display = 'none';
-  selectedImgBase64 = btoa("Photoshop Midjourney prompt: synthetic cybernetic clone portrait");
-  selectedImgMime = "image/png";
+document.getElementById('presetCancer').addEventListener('click', () => {
+  document.getElementById('inText').value = 'Drinking coffee cures all cancers.';
+  document.getElementById('inUrl').value = '';
+});
+
+document.getElementById('presetAiSpec').addEventListener('click', () => {
+  document.getElementById('inText').value = 'AI will definitely replace all software developers by 2027.';
+  document.getElementById('inUrl').value = '';
 });
 
 document.getElementById('presetScam').addEventListener('click', () => {
-  document.getElementById('inText').value = "URGENT OFFICIAL NOTICE: Your account has been approved to receive an immediate $500,000 federal economic relief payout. You must claim your funds within 24 hours. Submit a refundable $150 cryptographic verification fee to release the grant.";
-  document.getElementById('inUrl').value = "federal-stimulus-claims.info";
-});
-
-document.getElementById('presetContradiction').addEventListener('click', () => {
-  document.getElementById('inText').value = "Peace treaty signing ceremony concludes peacefully with zero military presence reported.";
-  document.getElementById('inUrl').value = "https://breaking-conflict-wire.org";
+  document.getElementById('inText').value = 'URGENT: Official Government COVID Grant approved! Wire $200 processing deposit immediately to claim your $50,000 cash prize.';
+  document.getElementById('inUrl').value = 'https://free-crypto-grant.top';
 });
 
 document.getElementById('presetReset').addEventListener('click', () => {
@@ -1276,61 +1367,30 @@ document.getElementById('presetReset').addEventListener('click', () => {
   document.getElementById('inUrl').value = '';
   document.getElementById('imgRemove').click();
   document.getElementById('vidRemove').click();
-  setGauge(50, 'UNCERTAIN', 'Consensus Engine Ready', 'Submit evidence to initiate multi-agent investigation.');
-  document.getElementById('factorsList').innerHTML = '';
-  document.getElementById('conflictBox').style.display = 'none';
-
-  ['claim', 'cross', 'video', 'image', 'source', 'scam', 'veracity'].forEach(id => {
-    setCardStatus(id, 'idle', 'IDLE');
-    const val = document.getElementById(`val-${id}`);
-    if (val) val.textContent = '0%';
-    const bar = document.getElementById(`bar-${id}`);
-    if (bar) {
-      bar.style.width = '0%';
-      bar.className = 'meter-fill good';
-    }
-  });
-  document.getElementById('finding-claim').textContent = 'Awaiting textual assertions to decompose into atomic verifiable claims.';
-  document.getElementById('finding-cross').textContent = 'Compares visual semantic features against claimed text.';
-  document.getElementById('finding-video').textContent = 'Temporal consistency, ViT face artifacts, and phoneme-viseme lip-sync analysis.';
-  document.getElementById('finding-image').textContent = 'Inspects diffusion frequency anomalies, facial geometry, and corneal specular reflections.';
-  document.getElementById('finding-source').textContent = 'Evaluates publisher provenance, domain lifespan, and historical accuracy records.';
-  document.getElementById('finding-scam').textContent = 'Measures urgency triggers, cognitive manipulation, and financial advance fee patterns.';
-  document.getElementById('finding-veracity').textContent = 'Cross-examines real-world institutional facts, government leadership, and known hoaxes.';
+  document.getElementById('audioRemove').click();
+  document.getElementById('docRemove').click();
+  setGauge(50, 'AWAITING EVIDENCE', 'Consensus Engine Ready', 'Upload text, images, or media to run collaborative Bayesian inference across all 7 specialized AI agents.');
+  for (let i = 1; i <= 7; i++) {
+    setAgentCard(`agent${i}`, { status: 'IDLE', verdict: '--', confidence: 0, evidence: ['Awaiting input inspection...'] });
+  }
 });
 
-// ── Network Calls ───────────────────────────────────────────────────────────
-async function apiCall(endpoint, body) {
-  const userKey = localStorage.getItem(API_KEY_STORAGE) || '';
-  const headers = { 'Content-Type': 'application/json' };
-  if (userKey) headers['x-gemini-key'] = userKey;
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body)
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return await res.json();
-}
-
-function setCardStatus(id, status, text) {
-  const el = document.getElementById(`status-${id}`);
-  if (!el) return;
-  el.className = `agent-status-pill ${status}`;
-  el.textContent = text || status.toUpperCase();
-}
-
-function setGauge(score, verdict, headline, desc) {
+// ── UI Updates ──────────────────────────────────────────────────────────────
+function setGauge(score, badgeText, title, desc, strength = 'MODERATE', conf = 0.85) {
   const valEl = document.getElementById('trustScoreVal');
   const badgeEl = document.getElementById('verdictBadge');
   const headEl = document.getElementById('verdictHeadline');
   const descEl = document.getElementById('verdictSummary');
   const circle = document.getElementById('gaugeCircle');
+  const strengthPill = document.getElementById('evidenceStrengthPill');
+  const confPill = document.getElementById('confidencePill');
 
   valEl.textContent = score;
-  headEl.textContent = headline;
+  headEl.textContent = title;
   descEl.textContent = desc;
+  badgeEl.textContent = badgeText;
+  strengthPill.textContent = `EVIDENCE: ${strength}`;
+  confPill.textContent = `CONFIDENCE: ${Math.round(conf * 100)}%`;
 
   const offset = 440 - (440 * score) / 100;
   circle.style.strokeDashoffset = offset;
@@ -1339,189 +1399,132 @@ function setGauge(score, verdict, headline, desc) {
   if (score >= 75) {
     circle.style.stroke = 'var(--emerald)';
     badgeEl.classList.add('trusted');
-    badgeEl.textContent = 'VERIFIED AUTHENTIC';
-  } else if (score >= 50) {
+  } else if (score >= 45 && score <= 55) {
     circle.style.stroke = 'var(--cyan)';
     badgeEl.classList.add('uncertain');
-    badgeEl.textContent = 'INSUFFICIENT EVIDENCE';
-  } else if (score >= 28) {
+  } else if (score >= 25) {
     circle.style.stroke = 'var(--amber)';
     badgeEl.classList.add('suspicious');
-    badgeEl.textContent = 'SUSPICIOUS DISCREPANCY';
   } else {
     circle.style.stroke = 'var(--rose)';
     badgeEl.classList.add('deceptive');
-    badgeEl.textContent = 'DECEPTIVE / MANIPULATED';
   }
 }
 
-// ── Main Investigation Orchestrator ─────────────────────────────────────────
+function setAgentCard(id, res) {
+  const statusEl = document.getElementById(`status-${id}`);
+  const verdictEl = document.getElementById(`verdict-${id}`);
+  const valEl = document.getElementById(`val-${id}`);
+  const barEl = document.getElementById(`bar-${id}`);
+  const findingEl = document.getElementById(`finding-${id}`);
+  const limEl = document.getElementById(`lim-${id}`);
+  const timeEl = document.getElementById(`time-${id}`);
+
+  const status = (res.status || 'IDLE').toLowerCase();
+  statusEl.className = `agent-status-pill ${status === 'completed' ? 'done' : status === 'not_applicable' ? 'neutral' : status === 'failed' ? 'threat' : 'idle'}`;
+  statusEl.textContent = res.status === 'NOT_APPLICABLE' ? '⚪ N/A' : res.status === 'COMPLETED' ? '🟢 DONE' : res.status === 'FAILED' ? '🔴 FAILED' : 'IDLE';
+
+  verdictEl.textContent = res.verdict || '--';
+  const conf = Math.round((res.confidence || 0) * 100);
+  valEl.textContent = `${conf}%`;
+  barEl.style.width = `${conf}%`;
+  barEl.className = `meter-fill ${(res.verdict || '').includes('FALSE') || (res.verdict || '').includes('FAKE') ? 'bad' : conf >= 75 ? 'good' : 'warn'}`;
+
+  if (res.evidence && res.evidence.length > 0) {
+    findingEl.innerHTML = `<ul>${res.evidence.map(e => `<li>${e}</li>`).join('')}</ul>`;
+  } else {
+    findingEl.textContent = 'Inspection completed without anomalies.';
+  }
+
+  if (limEl && res.limitations) {
+    limEl.textContent = res.limitations.length ? res.limitations[0] : 'No active limitations';
+  }
+  if (timeEl && res.processing_time_ms !== undefined) {
+    timeEl.textContent = `${res.processing_time_ms}ms`;
+  }
+}
+
+// ── Master Investigation Orchestrator ───────────────────────────────────────
 document.getElementById('btnRun').addEventListener('click', async () => {
   const btn = document.getElementById('btnRun');
   btn.disabled = true;
-  btn.innerHTML = '<span>⚡ Scanning across 7 Neural Agents...</span>';
+  btn.innerHTML = '<span>⚡ Running 7-Agent Neural Forensic Inspection...</span>';
+
+  for (let i = 1; i <= 7; i++) {
+    const pill = document.getElementById(`status-agent${i}`);
+    if (pill) { pill.className = 'agent-status-pill running'; pill.textContent = 'RUNNING'; }
+  }
 
   const text = document.getElementById('inText').value.trim();
   const urlVal = document.getElementById('inUrl').value.trim();
 
-  const evidence = {};
+  const payload = {
+    text,
+    image_base64: selectedImgBase64,
+    image_description: selectedImgName,
+    video_base64: selectedVidBase64,
+    audio_base64: selectedAudioBase64,
+    document_base64: selectedDocBase64,
+    filename: selectedImgName || selectedVidName || selectedAudioName || selectedDocName,
+    url: urlVal
+  };
 
   try {
-    // 1. Claim Extraction
-    if (text) {
-      setCardStatus('claim', 'running', 'EXTRACTING');
-      try {
-        const r = await apiCall('/extract-claims', { text, url: urlVal });
-        evidence.claim_extraction = r;
-        setCardStatus('claim', 'done', `${(r.claims || []).length} CLAIMS`);
-        document.getElementById('finding-claim').innerHTML = (r.claims || []).slice(0, 3).map(c => `<div>• <strong>${c.type}</strong>: ${c.text}</div>`).join('') || 'Extracted atomic assertions.';
-      } catch (e) {
-        setCardStatus('claim', 'threat', 'ERROR');
-      }
-    }
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(r => r.json());
 
-    // 2. Scam Detection
-    if (text) {
-      setCardStatus('scam', 'running', 'ANALYZING');
-      try {
-        const r = await apiCall('/analyze-scam', { text });
-        evidence.scam_detection = r;
-        const pct = Math.round((r.scam_probability || 0) * 100);
-        document.getElementById('val-scam').textContent = `${pct}%`;
-        document.getElementById('bar-scam').style.width = `${pct}%`;
-        setCardStatus('scam', pct > 50 ? 'threat' : 'done', `${r.risk_tier} RISK`);
-        document.getElementById('finding-scam').textContent = r.summary;
-      } catch (e) {
-        setCardStatus('scam', 'threat', 'ERROR');
-      }
-    }
+    const results = res.agent_results || {};
 
-    // 3. Image Deepfake Detection
-    if (selectedImgBase64) {
-      setCardStatus('image', 'running', 'FORENSICS');
-      try {
-        const r = await apiCall('/analyze-image', { image_base64: selectedImgBase64, mime_type: selectedImgMime, filename: selectedImgName });
-        evidence.image_deepfake = r;
-        const pct = Math.round((r.fake_confidence_score || 0) * 100);
-        document.getElementById('val-image').textContent = `${pct}%`;
-        document.getElementById('bar-image').style.width = `${pct}%`;
-        setCardStatus('image', pct > 50 ? 'threat' : 'done', r.verdict);
-        document.getElementById('finding-image').textContent = r.summary;
-      } catch (e) {
-        setCardStatus('image', 'threat', 'ERROR');
-      }
-    }
+    if (results.agent1_claim_factcheck) setAgentCard('agent1', results.agent1_claim_factcheck);
+    if (results.agent2_cross_modal) setAgentCard('agent2', results.agent2_cross_modal);
+    if (results.agent3_video_forensics) setAgentCard('agent3', results.agent3_video_forensics);
+    if (results.agent4_image_synthesis) setAgentCard('agent4', results.agent4_image_synthesis);
+    if (results.agent5_audio_forensics) setAgentCard('agent5', results.agent5_audio_forensics);
+    if (results.agent6_document_ocr) setAgentCard('agent6', results.agent6_document_ocr);
+    if (results.agent7_fusion) setAgentCard('agent7', results.agent7_fusion);
 
-    // 4. Video Deepfake Detection
-    if (selectedVidBase64) {
-      setCardStatus('video', 'running', 'X-CLIP SCAN');
-      try {
-        const r = await apiCall('/analyze-deepfake', { video_base64: selectedVidBase64, mime_type: selectedVidMime, filename: selectedVidName });
-        evidence.deepfake_video = r;
-        const pct = Math.round((r.deepfake_confidence_score || 0) * 100);
-        document.getElementById('val-video').textContent = `${pct}%`;
-        document.getElementById('bar-video').style.width = `${pct}%`;
-        setCardStatus('video', pct > 50 ? 'threat' : 'done', r.verdict);
-        document.getElementById('finding-video').textContent = r.evidence_summary || 'Temporal coherence inspected.';
-      } catch (e) {
-        setCardStatus('video', 'threat', 'ERROR');
-      }
-    }
-
-    // 5. Cross-Modal Contradiction
-    if (text && (selectedImgBase64 || urlVal)) {
-      setCardStatus('cross', 'running', 'ALIGNING');
-      try {
-        const r = await apiCall('/analyze-cross', { text, image_url: urlVal, image_base64: selectedImgBase64 });
-        evidence.cross_modal_contradiction = r;
-        const pct = Math.round((r.contradiction_score || 0) * 100);
-        document.getElementById('val-cross').textContent = `${pct}%`;
-        document.getElementById('bar-cross').style.width = `${pct}%`;
-        setCardStatus('cross', pct > 50 ? 'threat' : 'done', r.verdict);
-        document.getElementById('finding-cross').textContent = r.mismatch_reason;
-      } catch (e) {
-        setCardStatus('cross', 'threat', 'ERROR');
-      }
-    }
-
-    // 6. Source Credibility
-    if (urlVal) {
-      setCardStatus('source', 'running', 'GRAPH GNN');
-      try {
-        const r = await apiCall('/analyze-source', { source_name: urlVal, url: urlVal });
-        evidence.source_credibility = r;
-        const pct = Math.round(r.trust_score || 50);
-        document.getElementById('val-source').textContent = `${pct}%`;
-        document.getElementById('bar-source').style.width = `${pct}%`;
-        setCardStatus('source', pct < 50 ? 'threat' : 'done', r.trust_label);
-        document.getElementById('finding-source').textContent = r.summary;
-      } catch (e) {
-        setCardStatus('source', 'threat', 'ERROR');
-      }
-    }
-
-    // 7. Factual Veracity Engine (Cross-Examines Real-World Facts)
-    if (text) {
-      setCardStatus('veracity', 'running', 'VERIFYING');
-      try {
-        const r = await apiCall('/verify-veracity', { text });
-        evidence.factual_veracity = r;
-        const pct = Math.round((r.veracity_score || 0) * 100);
-        document.getElementById('val-veracity').textContent = `${pct}%`;
-        const bar = document.getElementById('bar-veracity');
-        bar.style.width = `${pct}%`;
-        if (pct < 35) {
-          bar.className = 'meter-fill bad';
-          setCardStatus('veracity', 'threat', r.verdict);
-        } else if (pct < 65) {
-          bar.className = 'meter-fill warn';
-          setCardStatus('veracity', 'running', r.verdict);
-        } else {
-          bar.className = 'meter-fill good';
-          setCardStatus('veracity', 'done', r.verdict);
-        }
-        document.getElementById('finding-veracity').textContent = r.explanation || r.correct_fact || 'Factual consistency corroborated.';
-      } catch (e) {
-        setCardStatus('veracity', 'threat', 'ERROR');
-      }
-    }
-
-    // 8. Bayesian Evidence Fusion (Consensus Engine)
-    const consensusRes = await apiCall('/consensus', { evidence });
+    // Hero Consensus
     setGauge(
-      consensusRes.trust_score,
-      consensusRes.verdict,
-      `Consensus Verdict: ${consensusRes.verdict}`,
-      consensusRes.explanation
+      res.trust_index,
+      res.final_verdict,
+      `Verdict: ${res.final_verdict}`,
+      res.reasoning,
+      res.evidence_strength,
+      res.confidence
     );
 
-    // Populate factors
-    const factorsList = document.getElementById('factorsList');
-    factorsList.innerHTML = (consensusRes.contributing_factors || []).map(f => {
-      const isNegative = f.direction === 'undermines_trust';
-      const color = isNegative ? 'var(--rose)' : 'var(--emerald)';
-      const arrow = isNegative ? '▼' : '▲';
-      return `<li class="factor-item"><span style="color: ${color}">${arrow}</span> ${f.reason}</li>`;
-    }).join('');
+    // Consensus breakdown
+    if (res.agent_consensus) {
+      document.getElementById('cntSupporting').textContent = res.agent_consensus.supporting;
+      document.getElementById('cntContradicting').textContent = res.agent_consensus.contradicting;
+      document.getElementById('cntNeutral').textContent = res.agent_consensus.neutral;
+      document.getElementById('cntNA').textContent = res.agent_consensus.not_applicable;
 
-    // Conflicts
+      const evaluated = res.agent_consensus.supporting + res.agent_consensus.contradicting + res.agent_consensus.neutral;
+      document.getElementById('topMeshStatus').innerHTML = `<span>${evaluated}/7 EVALUATED · ${res.agent_consensus.not_applicable}/7 N/A</span>`;
+    }
+
+    // Contradictions
     const conflictBox = document.getElementById('conflictBox');
-    if (consensusRes.conflicts && consensusRes.conflicts.length > 0) {
-      document.getElementById('conflictText').textContent = consensusRes.conflicts.join('; ');
+    if (res.contradictions && res.contradictions.length > 0) {
+      document.getElementById('conflictText').textContent = res.contradictions.join(' | ');
       conflictBox.style.display = 'flex';
     } else {
       conflictBox.style.display = 'none';
     }
 
   } catch (err) {
-    console.error(err);
+    console.error('Forensic inspection error:', err);
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>⚡ Run Multi-Agent Forensic Investigation</span>';
+    btn.innerHTML = '<span>⚡ Launch 7-Agent Forensic Investigation</span>';
   }
 });
 
-// Initialize on load
+// Initialize on page load
 initAuth();
 </script>
 </body>
