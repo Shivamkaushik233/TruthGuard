@@ -26,7 +26,7 @@ Remote sources are restricted to public HTTP/S addresses, with DNS pinning and r
 
 ## Validation
 
-`npm test` runs 154 tests covering real generated media decoding, transformations, scanned-PDF OCR, schema validation, evidence policy, and session isolation. `pytest -q` runs the same Node suite through a bridge. Provider unit tests use explicit doubles. Generated fixtures are functional tests, not a labelled authenticity benchmark. No Taj Mahal fixture or validated deepfake benchmark is included.
+`npm test` runs 159 tests covering real generated media decoding, transformations, scanned-PDF OCR, schema validation, evidence policy, and session isolation. `pytest -q` runs the same Node suite through a bridge. Provider unit tests use explicit doubles. Generated fixtures are functional tests, not a labelled authenticity benchmark. No Taj Mahal fixture or validated deepfake benchmark is included.
 
 `npm run test:live -- https://truthguard-4the.onrender.com outputs/live-check.json` checks deployed APIs, including grounded factual examples. Those checks fail when a configured provider cannot produce evidence; they do not silently substitute canned answers.
 
