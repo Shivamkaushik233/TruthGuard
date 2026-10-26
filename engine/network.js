@@ -24,7 +24,11 @@ function webURL(value) {
 async function fetchPublic(value, { maxBytes = 2 * 1024 * 1024, timeout = 12000, redirects = 4, signal } = {}) {
   const u = webURL(value);
   const host = u.hostname.replace(/^\[|\]$/g, '');
-  const records = await dns.lookup(host, { all: true });
+  let dnsTimer;
+  const records = await Promise.race([
+    dns.lookup(host, { all: true }),
+    new Promise((_, reject) => { dnsTimer = setTimeout(() => reject(fault('TIMEOUT', 'Source DNS resolution timed out.')), timeout); })
+  ]).finally(() => clearTimeout(dnsTimer));
   if (!records.length || records.some(r => !publicIP(r.address))) throw fault('PRIVATE_URL', 'The URL resolves to a blocked address.');
   const selected = records[0];
   return new Promise((resolve, reject) => {

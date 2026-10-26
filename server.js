@@ -47,7 +47,7 @@ function createServer({engine=orchestrator,reportTTL=TTL,rateLimit=30}={}){
         const report=record.report;
         return send(200,match[2]==='agents'?report.agent_results:match[2]==='evidence'?Object.values(report.agent_results).flatMap(r=>r.evidence||[]):report);
       }
-      const routes=['/api/investigate','/analyze','/api/analyze/image','/api/analyze/video','/api/analyze/document'];
+      const routes=['/api/investigate','/analyze','/api/analyze/image','/api/analyze/video','/api/analyze/document','/api/analyze/claim','/api/analyze/cross','/api/analyze/source','/api/analyze/scam','/api/analyze/veracity','/api/analyze/audio'];
       if(req.method!=='POST'||!routes.includes(pathname))return send(404,{error:{code:'NOT_FOUND',message:'Route not found.'},request_id:requestId});
       if(req.headers.origin){
         let origin;try{origin=new URL(req.headers.origin);}catch{throw fault('FORBIDDEN_ORIGIN','Invalid request origin.');}
@@ -64,7 +64,7 @@ function createServer({engine=orchestrator,reportTTL=TTL,rateLimit=30}={}){
         let size=0,chunks=[];
         for await(const chunk of req){size+=chunk.length;if(size>MAX_BODY)throw fault('PAYLOAD_TOO_LARGE','Upload limit is 12 MB.');chunks.push(chunk);}
         let payload;try{payload=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw fault('INVALID_JSON','The request body is not valid JSON.');}
-        const required={'/api/analyze/image':'image_base64','/api/analyze/video':'video_base64','/api/analyze/document':'document_base64'}[pathname];
+        const required={'/api/analyze/image':'image_base64','/api/analyze/video':'video_base64','/api/analyze/document':'document_base64','/api/analyze/audio':'audio_base64','/api/analyze/source':'url','/api/analyze/claim':'text','/api/analyze/scam':'text','/api/analyze/veracity':'text'}[pathname];
         if(required&&!payload?.[required])throw fault('EMPTY_INPUT','This endpoint requires '+required+'.');
         const report=await engine.analyze(payload);
         report.request_id=requestId;
