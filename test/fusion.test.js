@@ -1,0 +1,18 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {fuse}=require('../engine/fusion_engine'),{result}=require('../engine/result');
+const fact=v=>result('fact','COMPLETED',{verdict:v});
+test('no evidence does not create a score of 50',()=>{const r=fuse([]);assert.equal(r.trust_index,null);assert.equal(r.final_verdict,'INSUFFICIENT_EVIDENCE');});
+test('not-applicable media cannot lower verified text',()=>assert.equal(fuse([fact('VERIFIED_TRUE'),result('image','NOT_APPLICABLE')]).final_verdict,'VERIFIED_TRUE'));
+test('unexamined attached media prevents overall authenticity',()=>{const r=fuse([fact('VERIFIED_TRUE'),result('image')]);assert.equal(r.final_verdict,'UNCERTAIN');assert.equal(r.dimensions.factual_veracity,'VERIFIED_TRUE');});
+test('failed model does not create false verdict',()=>assert.equal(fuse([result('fact','FAILED')]).final_verdict,'INSUFFICIENT_EVIDENCE'));
+test('cross-modal contradiction remains separate from factual truth',()=>{const r=fuse([fact('VERIFIED_TRUE'),result('cross','COMPLETED',{verdict:'CONTRADICTORY'})]);assert.equal(r.final_verdict,'CONFLICTING_EVIDENCE');assert.equal(r.dimensions.factual_veracity,'VERIFIED_TRUE');});
+test('mixed facts remain mixed',()=>assert.equal(fuse([fact('MIXED')]).final_verdict,'MIXED'));
+test('conflicting sources cannot be averaged to a confident answer',()=>assert.equal(fuse([fact('CONFLICTING_EVIDENCE')]).confidence,null));
+test('source credibility alone does not establish truth',()=>assert.equal(fuse([result('source','COMPLETED',{verdict:'SOURCE_INSPECTED',source_tier:1})]).final_verdict,'INSUFFICIENT_EVIDENCE'));
+test('low scam risk does not establish truth',()=>assert.equal(fuse([result('scam','COMPLETED',{verdict:'LOW_RISK'})]).final_verdict,'INSUFFICIENT_EVIDENCE'));
+test('high scam risk is not labelled factual falsehood',()=>{const r=fuse([result('scam','COMPLETED',{verdict:'HIGH_RISK'})]);assert.equal(r.final_verdict,'HIGH_SCAM_RISK');assert.notEqual(r.dimensions.factual_veracity,'FALSE');});
+test('same-domain citations count as one source',()=>{const r=fuse([result('fact','COMPLETED',{evidence:[{url:'https://example.com/a',relationship:'SUPPORTS'},{url:'https://www.example.com/b',relationship:'SUPPORTS'}]})]);assert.equal(r.evidence_quality,'SINGLE_SOURCE');});
+test('auxiliary agents do not inflate the seven primary counts',()=>{const r=fuse([result('claim','COMPLETED'),result('audio','COMPLETED'),result('document','COMPLETED')]);assert.equal(r.agent_consensus.total,7);assert.equal(r.agent_consensus.completed,1);});
+test('failed auxiliary analysis prevents overall verification',()=>assert.equal(fuse([fact('VERIFIED_TRUE'),result('document','FAILED')]).final_verdict,'UNCERTAIN'));
+test('investigation identifiers are distinct',()=>assert.notEqual(fuse([]).investigation_id,fuse([]).investigation_id));

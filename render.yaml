@@ -1,12 +1,20 @@
 services:
   - type: web
-    name: truthguard
-    env: node
+    name: TruthGuard
+    runtime: node
     plan: free
-    buildCommand: echo "Zero npm dependencies required"
+    buildCommand: npm ci --omit=dev
     startCommand: node server.js
+    healthCheckPath: /api/health
     envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: NODE_ENV
+        value: production
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
-        value: gemini-flash-latest
+        value: gemini-2.5-flash
+      - key: OCR_ENABLED
+        value: "true"
+
